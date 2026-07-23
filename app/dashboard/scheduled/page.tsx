@@ -15,7 +15,7 @@ export default function ScheduledPage() {
 
   useEffect(() => {
     fetch("/api/scheduled-payments").then(r => r.json()).then(d => setPayments(d.payments || []));
-    fetch("/api/accounts").then(r => r.json()).then(d => { setAccounts(d.accounts || []); if (d.accounts?.[0]) setForm(f => ({ ...f, accountId: String(d.accounts[0].id) })); });
+    fetch("/api/accounts").then(r => r.json()).then(d => { const accts = d.data?.accounts || d.accounts || []; setAccounts(accts); if (accts?.[0]) setForm(f => ({ ...f, accountId: String(accts[0].id) })); });
   }, []);
 
   async function create(e: FormEvent) {
