@@ -519,9 +519,36 @@ export async function ensureSeedData() {
 
 export async function seedIfNeeded() {
   try {
-    return await ensureSeedData();
+    const result = await ensureSeedData();
+    // Also ensure system settings exist even if DB was already seeded
+    await ensureSystemSettings();
+    return result;
   } catch (error) {
     console.error("Seed error:", error);
     return { seeded: false, error };
+  }
+}
+
+export async function ensureSystemSettings() {
+  try {
+    const existing = await db.select().from(systemSettings);
+    const defaults = [
+      { key: "transfers_enabled", value: "true" },
+      { key: "withdrawals_enabled", value: "true" },
+      { key: "cards_enabled", value: "true" },
+      { key: "fx_enabled", value: "true" },
+      { key: "loans_enabled", value: "true" },
+      { key: "bills_enabled", value: "true" },
+      { key: "investments_enabled", value: "true" },
+      { key: "crypto_enabled", value: "true" },
+      { key: "notifications_enabled", value: "true" },
+    ];
+    // Only insert settings that don't already exist
+    const missing = defaults.filter(d => !existing.find(e => e.key === d.key));
+    if (missing.length > 0) {
+      await db.insert(systemSettings).values(missing);
+    }
+  } catch (error) {
+    console.error("System settings seed error:", error);
   }
 }
