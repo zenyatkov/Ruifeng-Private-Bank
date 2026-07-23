@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { accounts, loans, notifications, transactions } from "@/db/schema";
@@ -12,18 +12,26 @@ import { ValidationError, NotFoundError, AuthenticationError, AuthorizationError
 import { logger } from "@/lib/logger";
 
 export async function GET() {
-  const { user, error } = await requireUser();
-  if (!user) {
-    throw error === "Forbidden" ? new AuthorizationError() : new AuthenticationError();
+  try {
+    const { user, error } = await requireUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: error === "Forbidden" ? "Forbidden" : "Unauthorized" },
+        { status: error === "Forbidden" ? 403 : 401 }
+      );
+    }
+
+    const rows =
+      user.role === "admin"
+        ? await db.select().from(loans).orderBy(desc(loans.createdAt))
+        : await db.select().from(loans).where(eq(loans.userId, user.id)).orderBy(desc(loans.createdAt));
+
+    logger.info("Loans retrieved", { userId: user.id, count: rows.length });
+    return successResponse({ loans: rows });
+  } catch (err) {
+    console.error("Loans GET error:", err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
-
-  const rows =
-    user.role === "admin"
-      ? await db.select().from(loans).orderBy(desc(loans.createdAt))
-      : await db.select().from(loans).where(eq(loans.userId, user.id)).orderBy(desc(loans.createdAt));
-
-  logger.info("Loans retrieved", { userId: user.id, count: rows.length });
-  return successResponse({ loans: rows });
 }
 
 export const POST = createValidatedApiHandler(
@@ -96,7 +104,7 @@ export async function PATCH(request: NextRequest) {
   try {
     const { user, error } = await requireUser(["admin"]);
     if (!user) {
-      throw error === "Forbidden" ? new AuthorizationError() : new AuthenticationError();
+      return NextResponse.json({ error }, { status: error === "Forbidden" ? 403 : 401 });
     }
 
     const body = await request.json();
@@ -104,12 +112,12 @@ export async function PATCH(request: NextRequest) {
     const newStatus = body.status as string;
 
     if (!id || !newStatus) {
-      throw new ValidationError("Loan ID and status are required");
+      return NextResponse.json({ error: "Loan ID and status are required" }, { status: 400 });
     }
 
     const [existing] = await db.select().from(loans).where(eq(loans.id, id)).limit(1);
     if (!existing) {
-      throw new NotFoundError("Loan not found");
+      return NextResponse.json({ error: "Loan not found" }, { status: 404 });
     }
 
     const updates: Partial<typeof loans.$inferInsert> = {
@@ -220,8 +228,8 @@ export async function PATCH(request: NextRequest) {
     });
 
     return successResponse({ loan });
-  } catch (error) {
-    logger.error("Loan PATCH error", error);
-    throw error;
+  } catch (err) {
+    console.error("Loan PATCH error:", err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
