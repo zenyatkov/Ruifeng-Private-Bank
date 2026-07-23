@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { logger, generateRequestId } from "./logger";
+import { logger, generateRequestId } from "@/lib/logger";
 
 export async function middleware(request: NextRequest) {
   // Generate request ID for tracing
