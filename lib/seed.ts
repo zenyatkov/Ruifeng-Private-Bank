@@ -9,6 +9,7 @@ import {
   loans,
   notifications,
   supportTickets,
+  systemSettings,
   transactions,
   users,
 } from "@/db/schema";
@@ -497,6 +498,21 @@ export async function ensureSeedData() {
       rate,
     }))
   );
+
+  // Seed system settings (all services enabled by default)
+  const systemSettingDefaults = [
+    { key: "transfers_enabled", value: "true" },
+    { key: "withdrawals_enabled", value: "true" },
+    { key: "cards_enabled", value: "true" },
+    { key: "fx_enabled", value: "true" },
+    { key: "loans_enabled", value: "true" },
+    { key: "bills_enabled", value: "true" },
+    { key: "investments_enabled", value: "true" },
+    { key: "crypto_enabled", value: "true" },
+    { key: "notifications_enabled", value: "true" },
+  ];
+
+  await db.insert(systemSettings).values(systemSettingDefaults);
 
   return { seeded: true, adminId: admin.id, clientId: primary.id };
 }
