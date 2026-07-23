@@ -147,8 +147,8 @@ export function withAuth(
   handler: (request: NextRequest, userId: number) => Promise<NextResponse>
 ) {
   return withErrorHandling(async (request: NextRequest) => {
-    const { getSessionUser } = await import("./auth");
-    const user = await getSessionUser();
+    const { getCurrentUser } = await import("./auth");
+    const user = await getCurrentUser();
 
     if (!user) {
       throw new AuthenticationError();
