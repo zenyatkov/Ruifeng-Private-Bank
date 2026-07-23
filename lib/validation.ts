@@ -81,10 +81,19 @@ export const submitKycSchema = z.object({
 
 // Transaction schemas
 export const transferSchema = z.object({
-  recipientAccountId: z.number().int().positive(),
+  fromAccountId: z.number().int().positive(),
+  toAccountId: z.number().int().positive().optional(),
+  recipientAccountId: z.number().int().positive().optional(),
   amount: z.string().regex(/^\d+(\.\d{1,2})?$/),
   narration: z.string().optional(),
+  description: z.string().optional(),
+  transferType: z.enum(["internal", "external"]).optional().default("external"),
   pin: z.string().length(4),
+  beneficiaryName: z.string().optional(),
+  beneficiaryBank: z.string().optional(),
+  beneficiaryAccount: z.string().optional(),
+  beneficiarySwift: z.string().optional(),
+  beneficiaryCountry: z.string().optional(),
 });
 
 export const cardTransactionSchema = z.object({
@@ -95,15 +104,23 @@ export const cardTransactionSchema = z.object({
 
 // Loan schemas
 export const applyLoanSchema = z.object({
-  amount: z.string().regex(/^\d+(\.\d{1,2})?$/),
-  term: z.number().int().min(1).max(84),
-  currency: z.string().default("USD"),
+  principal: z.string().regex(/^\d+(\.\d{1,2})?$/),
+  termMonths: z.number().int().min(1).max(84).optional().default(36),
+  productName: z.string().optional().default("Private Credit Facility"),
+  purpose: z.string().optional(),
+  interestRate: z.string().optional().default("4.250"),
+  accountId: z.number().int().positive().optional(),
+  currency: z.string().optional().default("USD"),
+  userId: z.number().int().positive().optional(),
 });
 
 // Bill payment schemas
 export const payBillSchema = z.object({
-  billerCode: z.string(),
-  referenceNumber: z.string(),
+  accountId: z.number().int().positive(),
+  billerName: z.string().min(1),
+  billerCategory: z.string().optional(),
+  billerCode: z.string().optional(),
+  referenceNumber: z.string().optional(),
   amount: z.string().regex(/^\d+(\.\d{1,2})?$/),
   pin: z.string().length(4),
 });
