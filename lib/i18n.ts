@@ -102,7 +102,7 @@ export function t(lang: string, key: string): string {
   return T[l]?.[key] || T.en[key] || key;
 }
 
-export function getDefaultCurrency(country: string): SupportedCurrency { return COUNTRY_CURRENCY[country] || "USD"; }
+export function getDefaultCurrency(country: string): SupportedCurrency { return COUNTRY_CURRENCY[country] || "SGD"; }
 export function getDefaultLanguage(country: string): SupportedLanguage { return COUNTRY_LANGUAGE[country] || "en"; }
 
 export function fmtCurrency(amount: string | number | null | undefined, currency: string, lang: string) {
