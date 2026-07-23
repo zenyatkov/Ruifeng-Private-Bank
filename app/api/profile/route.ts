@@ -1,46 +1,56 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { users } from "@/db/schema";
-import { hashPassword, requireUser, verifyPassword } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { updateProfileSchema } from "@/lib/validation";
 import { createValidatedApiHandler } from "@/lib/api-handler";
 import { successResponse } from "@/lib/api-error";
-import { ValidationError, NotFoundError, AuthenticationError, AuthorizationError } from "@/lib/api-error";
+import { AuthenticationError, AuthorizationError } from "@/lib/api-error";
 import { logger } from "@/lib/logger";
 
 export async function GET() {
-  const { user, error } = await requireUser();
-  if (!user) {
-    throw error === "Forbidden" ? new AuthorizationError() : new AuthenticationError();
+  try {
+    const { user, error } = await requireUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: error === "Forbidden" ? "Forbidden" : "Unauthorized" },
+        { status: error === "Forbidden" ? 403 : 401 }
+      );
+    }
+
+    const [row] = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
+    if (!row) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    logger.info("Profile retrieved", { userId: user.id });
+
+    return successResponse({
+      profile: {
+        id: row.id,
+        email: row.email,
+        firstName: row.firstName,
+        lastName: row.lastName,
+        phone: row.phone,
+        role: row.role,
+        country: row.country,
+        city: row.city,
+        address: row.address,
+        nationality: row.nationality,
+        dateOfBirth: row.dateOfBirth,
+        kycStatus: row.kycStatus,
+        clientTier: row.clientTier,
+        preferredCurrency: row.preferredCurrency,
+        preferredLanguage: row.preferredLanguage,
+        lastLoginAt: row.lastLoginAt,
+        createdAt: row.createdAt,
+      },
+    });
+  } catch (err) {
+    console.error("Profile GET error:", err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
-
-  const [row] = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
-  if (!row) {
-    throw new NotFoundError("User not found");
-  }
-
-  logger.info("Profile retrieved", { userId: user.id });
-
-  return successResponse({
-    profile: {
-      id: row.id,
-      email: row.email,
-      firstName: row.firstName,
-      lastName: row.lastName,
-      phone: row.phone,
-      role: row.role,
-      country: row.country,
-      city: row.city,
-      address: row.address,
-      nationality: row.nationality,
-      dateOfBirth: row.dateOfBirth,
-      kycStatus: row.kycStatus,
-      clientTier: row.clientTier,
-      lastLoginAt: row.lastLoginAt,
-      createdAt: row.createdAt,
-    },
-  });
 }
 
 export const PATCH = createValidatedApiHandler(
