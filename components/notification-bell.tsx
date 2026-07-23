@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Bell, X, Check, CheckCheck } from "lucide-react";
+import { Bell, X, Check, CheckCheck, Shield, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUserPrefs } from "@/components/user-context";
@@ -9,22 +9,31 @@ import { t } from "@/lib/i18n";
 
 type Notification = { id: number; title: string; body: string; type: string | null; isRead: boolean; createdAt: string };
 
+// Determine if a notification is admin/system or personal
+function isSystemNotification(n: Notification): boolean {
+  const lower = n.title.toLowerCase();
+  return lower.includes("admin") || lower.includes("system") || lower.includes("broadcast") || lower.includes("setting") || 
+    lower.includes("service") || lower.includes("maintenance") || lower.includes("kyc approved") || lower.includes("card approved") || 
+    lower.includes("transfer approved") || lower.includes("loan approved") || n.type === "admin";
+}
+
 // Map notification titles to destination URLs
 function getNotificationLink(title: string): string {
   const lower = title.toLowerCase();
-  if (lower.includes("transfer") || lower.includes("sent") || lower.includes("wire")) return "/dashboard/transfers";
-  if (lower.includes("loan") || lower.includes("credit")) return "/dashboard/loans";
+  if (lower.includes("transfer") || lower.includes("sent") || lower.includes("wire") || lower.includes("transfer approved")) return "/dashboard/transfers";
+  if (lower.includes("loan") || lower.includes("credit") || lower.includes("loan approved")) return "/dashboard/loans";
   if (lower.includes("card") || lower.includes("card approved")) return "/dashboard/cards";
   if (lower.includes("bill") || lower.includes("payment completed") || lower.includes("payment declined")) return "/dashboard/bills";
-  if (lower.includes("kyc") || lower.includes("verification") || lower.includes("identity")) return "/dashboard/kyc";
+  if (lower.includes("kyc") || lower.includes("verification") || lower.includes("identity") || lower.includes("kyc approved")) return "/dashboard/kyc";
   if (lower.includes("fx") || lower.includes("conversion") || lower.includes("rate")) return "/dashboard/fx";
   if (lower.includes("investment") || lower.includes("portfolio")) return "/dashboard/investments";
   if (lower.includes("receipt")) return "/dashboard/receipts";
-  if (lower.includes("password") || lower.includes("security") || lower.includes("2fa")) return "/dashboard/security";
+  if (lower.includes("password") || lower.includes("security") || lower.includes("2fa") || lower.includes("email verification")) return "/dashboard/security";
   if (lower.includes("welcome") || lower.includes("onboarding")) return "/dashboard/kyc";
   if (lower.includes("support") || lower.includes("reply") || lower.includes("ticket")) return "/dashboard/support";
   if (lower.includes("funds credited") || lower.includes("funds debited") || lower.includes("adjustment")) return "/dashboard/accounts";
-  // Default: go to dashboard
+  // Admin/system notifications → admin dashboard
+  if (isSystemNotification({ title, body: "", type: null, isRead: false, createdAt: "", id: 0 })) return "/admin";
   return "/dashboard";
 }
 
@@ -35,6 +44,7 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
   const [items, setItems] = useState<Notification[]>([]);
   const [count, setCount] = useState(initialCount);
   const [loaded, setLoaded] = useState(false);
+  const [tab, setTab] = useState<"personal" | "system">("personal");
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -49,7 +59,6 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
     if (!loaded) {
       const res = await fetch("/api/notifications");
       const d = await res.json();
-      // Handle successResponse wrapper
       const notifs = d.data?.notifications || d.notifications || [];
       setItems(notifs);
       setLoaded(true);
@@ -76,7 +85,10 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
     router.push(link);
   }
 
-  const typeIcon: Record<string, string> = { success: "🟢", alert: "🔴", info: "🔵" };
+  const personal = items.filter(n => !isSystemNotification(n));
+  const system = items.filter(n => isSystemNotification(n));
+  const displayItems = tab === "personal" ? personal : system;
+  const typeIcon: Record<string, string> = { success: "🟢", alert: "🔴", info: "🔵", admin: "🟡" };
 
   return (
     <div ref={ref} className="relative">
@@ -104,12 +116,24 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
             </div>
           </div>
 
+          {/* Tabs: Personal vs Admin/System */}
+          <div className="flex gap-1 px-4 pt-2 pb-1">
+            <button onClick={() => setTab("personal")} className={`flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${tab === "personal" ? "bg-jade-500/10 text-jade-700" : "text-ink-600/60 hover:bg-rice-50"}`}>
+              <User className="h-3 w-3" /> Personal ({personal.length})
+            </button>
+            <button onClick={() => setTab("system")} className={`flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${tab === "system" ? "bg-bronze-500/10 text-bronze-700" : "text-ink-600/60 hover:bg-rice-50"}`}>
+              <Shield className="h-3 w-3" /> System ({system.length})
+            </button>
+          </div>
+
           {/* Items */}
           <div className="max-h-80 overflow-y-auto scrollbar-thin">
-            {items.length === 0 ? (
-              <div className="px-4 py-8 text-center text-sm text-ink-600/50">{t(lang, "noNotifications") || "No notifications"}</div>
+            {displayItems.length === 0 ? (
+              <div className="px-4 py-8 text-center text-sm text-ink-600/50">
+                {tab === "personal" ? (t(lang, "noUnreadNotifications") || "No personal notifications.") : "No system messages."}
+              </div>
             ) : (
-              items.slice(0, 15).map(n => (
+              displayItems.slice(0, 15).map(n => (
                 <button
                   key={n.id}
                   className={`w-full text-left border-b border-ink-900/5 px-4 py-3 transition hover:bg-rice-50 cursor-pointer ${n.isRead ? "opacity-60" : ""}`}
