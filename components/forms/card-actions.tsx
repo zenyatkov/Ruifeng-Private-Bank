@@ -167,6 +167,50 @@ export function CardDisplay({ card, accounts }: {
   );
 }
 
+export function CreditCardApplicationForm({ accounts }: { accounts: Array<{ id: number; nickname: string | null; accountNumber: string; currency: string }> }) {
+  const router = useRouter();
+  const [accountId, setAccountId] = useState(accounts[0]?.id?.toString() || "");
+  const [cardArt, setCardArt] = useState("jade-dragon");
+  const [creditLimit, setCreditLimit] = useState("10000");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  async function apply() {
+    setLoading(true); setMessage("");
+    const res = await fetch("/api/cards", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ accountId: Number(accountId), type: "credit", cardArt, creditLimit }) });
+    setLoading(false);
+    if (!res.ok) { const d = await res.json(); setMessage(d.error || d.data?.error || "Failed"); return; }
+    setMessage("✅ Credit card application submitted!");
+    router.refresh();
+  }
+
+  if (accounts.length === 0) return <p className="text-sm text-ink-600/70">Open an account first.</p>;
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-2xl border border-jade-500/20 bg-gradient-to-br from-jade-500/10 to-emerald-500/5 p-4 text-center mb-2">
+        <p className="text-lg font-display font-bold text-ink-900">✨ Credit Card</p>
+        <p className="text-xs text-ink-600/70 mt-1">Dedicated credit facility with flexible limits</p>
+      </div>
+      <div><Label>Linked account</Label><Select value={accountId} onChange={(e) => setAccountId(e.target.value)}>
+        {accounts.map(a => <option key={a.id} value={a.id}>{a.nickname || a.accountNumber} ({a.currency})</option>)}
+      </Select></div>
+      <div><Label>Credit limit</Label>
+        <Select value={creditLimit} onChange={(e) => setCreditLimit(e.target.value)}>
+          <option value="5000">5,000</option><option value="10000">10,000</option><option value="25000">25,000</option><option value="50000">50,000</option><option value="100000">100,000</option>
+        </Select>
+      </div>
+      <div><Label>Card design</Label>
+        <div className="grid grid-cols-3 gap-2">{CARD_ARTS.map(art => (
+          <button key={art.id} type="button" onClick={() => setCardArt(art.id)} className={`rounded-xl p-2 h-12 text-[9px] text-white font-semibold ${art.css} ring-2 transition ${cardArt === art.id ? "ring-jade-400 scale-105" : "ring-transparent"}`}>{art.label}</button>
+        ))}</div>
+      </div>
+      {message && <p className={`text-sm font-semibold ${message.startsWith("✅") ? "text-jade-600" : "text-vermillion-500"}`}>{message}</p>}
+      <Button type="button" onClick={apply} disabled={loading} className="w-full">{loading ? "Processing..." : "✨ Apply for Credit Card"}</Button>
+    </div>
+  );
+}
+
 export function CardArtChanger({ cardId, currentArt }: { cardId: number; currentArt: string | null }) {
   const router = useRouter();
   const [art, setArt] = useState(currentArt || "jade-dragon");
