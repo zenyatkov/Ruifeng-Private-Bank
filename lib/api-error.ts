@@ -87,6 +87,11 @@ export function errorResponse(
     code = error.code;
   } else if (error instanceof Error) {
     message = error.message;
+    // Zod validation errors or schema errors should return 400, not 500
+    if (message.includes(":") && (message.includes("required") || message.includes("invalid") || message.includes("Expected") || message.includes("min") || message.includes("max") || message.includes("regex") || message.includes("enum"))) {
+      statusCode = 400;
+      code = "VALIDATION_ERROR";
+    }
     logger.error("Unexpected error", error, { requestId });
   }
 
