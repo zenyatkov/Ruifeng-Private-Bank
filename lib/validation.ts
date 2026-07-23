@@ -15,7 +15,7 @@ export const registerSchema = z.object({
   country: z.string().optional().default("Singapore"),
   city: z.string().optional(),
   nationality: z.string().optional(),
-  preferredCurrency: z.string().optional().default("USD"),
+  preferredCurrency: z.string().optional().default("SGD"),
   preferredLanguage: z.string().optional().default("en"),
 });
 
@@ -126,7 +126,7 @@ export const applyLoanSchema = z.object({
   purpose: z.string().optional(),
   interestRate: z.string().optional().default("4.250"),
   accountId: z.number().int().positive().optional(),
-  currency: z.string().optional().default("USD"),
+  currency: z.string().optional().default("SGD"),
   userId: z.number().int().positive().optional(),
 });
 
