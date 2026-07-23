@@ -5,10 +5,12 @@ import { getCurrentUser } from "@/lib/auth";
 import { ACCOUNT_TYPE_LABELS, formatCurrency, formatDateTime } from "@/lib/utils";
 import { EmptyState, PageHeader, Panel, StatusBadge } from "@/components/ui";
 import { OpenAccountForm } from "@/components/forms/open-account-form";
+import { t } from "@/lib/i18n";
 
 export default async function AccountsPage() {
   const user = await getCurrentUser();
   if (!user) return null;
+  const lang = user.preferredLanguage || "en";
 
   const rows = await db
     .select()
@@ -30,8 +32,8 @@ export default async function AccountsPage() {
   return (
     <div>
       <PageHeader
-        title="Accounts"
-        subtitle="Multi-currency liquidity, private wealth, and deposit structures."
+        title={t(lang, "accounts")}
+        subtitle={t(lang, "accountsSubtitle")}
         actions={<OpenAccountForm />}
       />
 
@@ -43,7 +45,7 @@ export default async function AccountsPage() {
                 <p className="text-xs uppercase tracking-[0.16em] text-jade-300">
                   {ACCOUNT_TYPE_LABELS[account.type] || account.type}
                 </p>
-                <p className="mt-2 font-display text-2xl">{account.nickname || account.currency + " Account"}</p>
+                <p className="mt-2 font-display text-2xl">{account.nickname || account.currency + " " + t(lang, "account")}</p>
               </div>
               <StatusBadge status={account.status} />
             </div>
@@ -52,21 +54,21 @@ export default async function AccountsPage() {
             </p>
             <div className="mt-6 grid grid-cols-2 gap-3 text-xs text-rice-200/70">
               <div>
-                <p className="text-rice-200/40">Account number</p>
+                <p className="text-rice-200/40">{t(lang, "accountNumber")}</p>
                 <p className="mt-1 font-medium text-rice-50">{account.accountNumber}</p>
               </div>
               <div>
-                <p className="text-rice-200/40">IBAN</p>
+                <p className="text-rice-200/40">{t(lang, "iban")}</p>
                 <p className="mt-1 font-medium text-rice-50">{account.iban}</p>
               </div>
               <div>
-                <p className="text-rice-200/40">Available</p>
+                <p className="text-rice-200/40">{t(lang, "available")}</p>
                 <p className="mt-1 font-medium text-rice-50">
                   {formatCurrency(account.availableBalance, account.currency)}
                 </p>
               </div>
               <div>
-                <p className="text-rice-200/40">Interest</p>
+                <p className="text-rice-200/40">{t(lang, "interestRate")}</p>
                 <p className="mt-1 font-medium text-rice-50">{account.interestRate}% p.a.</p>
               </div>
             </div>
@@ -74,22 +76,22 @@ export default async function AccountsPage() {
         ))}
       </div>
 
-      {rows.length === 0 ? <EmptyState title="No accounts" description="Open your first 瑞峯 RuiFeng account." /> : null}
+      {rows.length === 0 ? <EmptyState title={t(lang, "noAccounts")} description={t(lang, "openFirstAccount")} /> : null}
 
       <div className="mt-8">
-        <Panel title="Account activity">
+        <Panel title={t(lang, "accountActivity")}>
           {txs.length === 0 ? (
-            <EmptyState title="No activity" />
+            <EmptyState title={t(lang, "noActivity")} />
           ) : (
             <div className="table-wrap">
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>Date</th>
-                    <th>Reference</th>
-                    <th>Description</th>
-                    <th>Status</th>
-                    <th>Amount</th>
+                    <th>{t(lang, "date")}</th>
+                    <th>{t(lang, "reference")}</th>
+                    <th>{t(lang, "description")}</th>
+                    <th>{t(lang, "status")}</th>
+                    <th>{t(lang, "amount")}</th>
                   </tr>
                 </thead>
                 <tbody>
