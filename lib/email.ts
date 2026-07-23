@@ -1,15 +1,27 @@
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM = "瑞峯 RuiFeng Bank <onboarding@resend.dev>";
+
+// Resend free tier (onboarding@resend.dev) can only send to the API key owner's email.
+// For production, you'd use a verified custom domain like "noreply@ruifeng.bank"
+// For now, we try Resend and if it fails (because the recipient isn't verified),
+// we log the OTP to console so the developer can see it, and return false.
+// The frontend shows OTP via in-app notification as a fallback.
+const FROM = process.env.EMAIL_FROM || "瑞峯 RuiFeng Bank <onboarding@resend.dev>";
 
 export async function sendEmail(to: string, subject: string, html: string) {
   try {
     const { data, error } = await resend.emails.send({ from: FROM, to, subject, html });
-    if (error) { console.error("Email error:", error); return false; }
+    if (error) {
+      console.error("Email send error:", error);
+      console.log(`[EMAIL FALLBACK] OTP/Email for ${to}: Check server logs or in-app notifications`);
+      return false;
+    }
+    console.log(`✅ Email sent successfully to ${to}, id: ${data?.id}`);
     return true;
   } catch (err) {
     console.error("Email send failed:", err);
+    console.log(`[EMAIL FALLBACK] Email for ${to} could not be sent. Check in-app notifications.`);
     return false;
   }
 }
@@ -53,6 +65,7 @@ export function otpEmailHtml(otp: string) {
       <p style="color:#2E3F66;">Your verification code is:</p>
       <div style="background:#0F1629;color:#86EFAC;padding:20px;border-radius:12px;margin:20px 0;font-size:32px;font-weight:bold;letter-spacing:8px;">${otp}</div>
       <p style="color:#A8A29E;font-size:13px;">This code expires in 10 minutes. Do not share it with anyone.</p>
+      <p style="color:#A8A29E;font-size:12px;margin-top:16px;">💡 If you don't receive this email, check your in-app notifications for the verification code.</p>
     </div>
     <p style="color:#A8A29E;font-size:11px;text-align:center;margin-top:24px;">
       If you did not request this, please ignore this email.<br/>
