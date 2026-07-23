@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { accounts, investments } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
 import { formatCurrency } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 import { EmptyState, PageHeader, Panel, StatCard } from "@/components/ui";
 import { InvestmentForm } from "@/components/forms/investment-form";
 import { SellInvestmentButton } from "@/components/forms/sell-investment";
@@ -10,6 +11,7 @@ import { SellInvestmentButton } from "@/components/forms/sell-investment";
 export default async function InvestmentsPage() {
   const user = await getCurrentUser();
   if (!user) return null;
+  const lang = user.preferredLanguage || "en";
   const rows = await db.select().from(investments).where(eq(investments.userId, user.id));
   const userAccounts = await db.select().from(accounts).where(eq(accounts.userId, user.id));
 
@@ -23,15 +25,15 @@ export default async function InvestmentsPage() {
 
   return (
     <div>
-      <PageHeader title="Investments · 投资" subtitle="Buy and sell positions. Profits withdraw to your account at market price." />
+      <PageHeader title={t(lang, "investments")} subtitle="Buy and sell positions. Profits withdraw to your account at market price." />
       <div className="grid gap-4 md:grid-cols-3">
-        <StatCard label="Portfolio MTM" value={formatCurrency(totalMtm, "USD")} accent="jade" />
-        <StatCard label="Total P&L" value={formatCurrency(totalPnl, "USD")} hint={totalPnl >= 0 ? "In profit" : "Loss"} accent={totalPnl >= 0 ? "jade" : "vermillion"} />
-        <StatCard label="Positions" value={String(positions.length)} accent="ink" />
+        <StatCard label={t(lang, "portfolioMTM") || "Portfolio MTM"} value={formatCurrency(totalMtm, "USD")} accent="jade" />
+        <StatCard label={t(lang, "totalPL") || "Total P&L"} value={formatCurrency(totalPnl, "USD")} hint={totalPnl >= 0 ? "In profit" : "Loss"} accent={totalPnl >= 0 ? "jade" : "vermillion"} />
+        <StatCard label={t(lang, "positions") || "Positions"} value={String(positions.length)} accent="ink" />
       </div>
       <div className="mt-6 grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
-        <Panel title="Holdings · 持仓">
-          {positions.length === 0 ? <EmptyState title="No investments" /> : (
+        <Panel title={t(lang, "holdings") || "Holdings"}>
+          {positions.length === 0 ? <EmptyState title={t(lang, "noPositions") || "No investments"} /> : (
             <div className="space-y-3">
               {positions.map(p => (
                 <div key={p.id} className="rounded-2xl border border-ink-900/5 bg-rice-50 p-4">
@@ -56,7 +58,7 @@ export default async function InvestmentsPage() {
             </div>
           )}
         </Panel>
-        <Panel title="Buy · 买入">
+        <Panel title={t(lang, "buyPositions") || "Buy"}>
           <InvestmentForm accounts={userAccounts} />
         </Panel>
       </div>
