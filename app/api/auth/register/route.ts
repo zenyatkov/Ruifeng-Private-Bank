@@ -40,7 +40,7 @@ export const POST = createValidatedApiHandler(
         role: "client",
         kycStatus: "pending",
         clientTier: "Private",
-        preferredCurrency: data.preferredCurrency || "USD",
+        preferredCurrency: data.preferredCurrency || "SGD",
         preferredLanguage: data.preferredLanguage || "en",
         isActive: true,
       })
@@ -52,7 +52,7 @@ export const POST = createValidatedApiHandler(
       accountNumber,
       iban: `SG89RFPB${accountNumber}`,
       type: "checking",
-      currency: "USD",
+      currency: "SGD",
       balance: "0.00",
       availableBalance: "0.00",
       status: "active",
@@ -70,9 +70,38 @@ export const POST = createValidatedApiHandler(
     // Send welcome email via Resend (non-blocking)
     try {
       const { sendEmail, welcomeEmailHtml } = await import("@/lib/email");
-      await sendEmail(email, "Welcome to 瑞峯 RuiFeng Private Bank", welcomeEmailHtml(data.firstName));
+      const emailSent = await sendEmail(email, "Welcome to 瑞峯 RuiFeng Private Bank", welcomeEmailHtml(data.firstName));
+      if (!emailSent) {
+        // If email couldn't be delivered (Resend free tier), add in-app notification with hint
+        await db.insert(notifications).values({
+          userId: user.id,
+          title: "Welcome Email Delivery Note",
+          body: "We couldn't deliver the welcome email to your address. You can still access all features through the app. Verify your email in Settings to enable email notifications.",
+          type: "info",
+        });
+      }
     } catch (err) {
       logger.warn("Failed to send welcome email", { userId: user.id, requestId });
+    }
+
+    // Also trigger OTP email verification for email verification
+    try {
+      const otp = String(Math.floor(100000 + Math.random() * 899999));
+      const expiry = new Date(Date.now() + 10 * 60 * 1000);
+      await db.update(users).set({ emailOtp: otp, emailOtpExpiry: expiry }).where(eq(users.id, user.id));
+      
+      const { sendEmail, otpEmailHtml } = await import("@/lib/email");
+      const otpSent = await sendEmail(email, "瑞峯 RuiFeng — Verify Your Email", otpEmailHtml(otp));
+      
+      // Always create in-app notification with OTP as fallback
+      await db.insert(notifications).values({
+        userId: user.id,
+        title: otpSent ? "Email Verification Code Sent" : "Email Verification Code (In-App)",
+        body: `Your verification code is: ${otp}. This code expires in 10 minutes. ${otpSent ? "Check your email for details." : "We couldn't deliver the email to your address. Use this code to verify your email in the Security & Settings page."}`,
+        type: otpSent ? "info" : "alert",
+      });
+    } catch (err) {
+      logger.warn("Failed to send OTP during registration", { userId: user.id, requestId });
     }
 
     const { token, expiresAt } = await createSessionToken(user.id);
