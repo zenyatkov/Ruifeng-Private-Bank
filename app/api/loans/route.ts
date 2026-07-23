@@ -34,13 +34,13 @@ export const POST = createValidatedApiHandler(
       throw error === "Forbidden" ? new AuthorizationError() : new AuthenticationError();
     }
 
-    const principal = data.principal;
-    const termMonths = data.termMonths || 36;
-    const productName = data.productName || "Private Credit Facility";
-    const purpose = data.purpose || null;
-    const currency = (data.currency || "USD").toUpperCase();
-    const interestRate = String(data.interestRate || "4.250");
-    const accountId = data.accountId || null;
+    const principal = parseFloat(data.principal);
+    const termMonths = data.termMonths ?? 36;
+    const productName = data.productName ?? "Private Credit Facility";
+    const purpose = data.purpose ?? null;
+    const currency = (data.currency ?? "USD").toUpperCase();
+    const interestRate = data.interestRate ?? "4.250";
+    const accountId = data.accountId ?? null;
 
     // Validate the disbursement account exists and belongs to user
     if (accountId) {
