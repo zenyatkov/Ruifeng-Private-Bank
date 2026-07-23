@@ -84,22 +84,22 @@ export default async function DashboardPage() {
         subtitle={t(lang, "privateBanking")}
         actions={
           <Link href="/dashboard/transfers" className="btn-primary text-sm">
-            New transfer
+            New {t(lang, "transfers")}
           </Link>
         }
       />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard label={t(lang, "totalWealth")} value={formatCurrency(netWorth, ccy)} hint="Cash + investments − loans" accent="jade" />
+        <StatCard label={t(lang, "totalWealth")} value={formatCurrency(netWorth, ccy)} hint={`${t(lang, "cashBalances")} + ${t(lang, "investments")} − ${t(lang, "activeLoans")}`} accent="jade" />
         <StatCard label={t(lang, "cashBalances")} value={formatCurrency(totalCash, ccy)} hint={`${userAccounts.length} ${t(lang, "accounts")}`} accent="ink" />
-        <StatCard label={t(lang, "investments")} value={formatCurrency(investValue, ccy)} hint={`${userInvestments.length} positions`} accent="bronze" />
+        <StatCard label={t(lang, "investments")} value={formatCurrency(investValue, ccy)} hint={`${userInvestments.length} ${t(lang, "positions")}`} accent="bronze" />
         <StatCard label={t(lang, "activeLoans")} value={formatCurrency(loanOutstanding, ccy)} hint={`${userCards.length} ${t(lang, "cards")}`} />
       </div>
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[1.4fr_1fr]">
-        <Panel title="Accounts">
+        <Panel title={t(lang, "accounts")}>
           {userAccounts.length === 0 ? (
-            <EmptyState title="No accounts yet" description="Open a multi-currency account to begin." />
+            <EmptyState title={t(lang, "noAccountsYet") || "No accounts yet"} description={t(lang, "multiCurrencyAccount") || "Open a multi-currency account to begin."} />
           ) : (
             <div className="space-y-3">
               {userAccounts.map((account) => (
@@ -127,9 +127,9 @@ export default async function DashboardPage() {
           )}
         </Panel>
 
-        <Panel title="Priority alerts">
+        <Panel title={t(lang, "priorityAlerts") || "Priority alerts"}>
           {alerts.length === 0 ? (
-            <EmptyState title="You're all caught up" description="No unread notifications." />
+            <EmptyState title={t(lang, "youreAllCaughtUp") || "You're all caught up"} description={t(lang, "noUnreadNotifications") || "No unread notifications."} />
           ) : (
             <div className="space-y-3">
               {alerts.map((n) => (
@@ -146,15 +146,15 @@ export default async function DashboardPage() {
 
       <div className="mt-6">
         <Panel
-          title="Recent activity"
+          title={t(lang, "recentActivity") || "Recent activity"}
           action={
             <Link href="/dashboard/accounts" className="text-sm font-semibold text-jade-600">
-              View accounts
+              {t(lang, "viewAccounts") || "View accounts"}
             </Link>
           }
         >
           {recentTx.length === 0 ? (
-            <EmptyState title="No transactions yet" />
+            <EmptyState title={t(lang, "noActivityYet") || "No transactions yet"} />
           ) : (
             <div className="space-y-2">
               {recentTx.map((tx, i) => {
