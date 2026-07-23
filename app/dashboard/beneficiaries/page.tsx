@@ -5,10 +5,12 @@ import { getCurrentUser } from "@/lib/auth";
 import { EmptyState, PageHeader, Panel, StatusBadge } from "@/components/ui";
 import { BeneficiaryForm } from "@/components/forms/beneficiary-form";
 import { DeleteBeneficiaryButton } from "@/components/forms/delete-beneficiary-button";
+import { t } from "@/lib/i18n";
 
 export default async function BeneficiariesPage() {
   const user = await getCurrentUser();
   if (!user) return null;
+  const lang = user.preferredLanguage || "en";
 
   const rows = await db
     .select()
@@ -19,16 +21,16 @@ export default async function BeneficiariesPage() {
   return (
     <div>
       <PageHeader
-        title="Beneficiaries"
-        subtitle="Trusted payees across Asia and global correspondent banks."
+        title={t(lang, "beneficiaries")}
+        subtitle={t(lang, "beneficiariesSubtitle")}
       />
       <div className="grid gap-6 xl:grid-cols-2">
-        <Panel title="Add beneficiary">
+        <Panel title={t(lang, "addBeneficiary")}>
           <BeneficiaryForm />
         </Panel>
-        <Panel title="Saved payees">
+        <Panel title={t(lang, "savedPayees")}>
           {rows.length === 0 ? (
-            <EmptyState title="No beneficiaries" description="Add your first trusted counterparty." />
+            <EmptyState title={t(lang, "noBeneficiaries")} description={t(lang, "addFirstCounterparty")} />
           ) : (
             <div className="space-y-3">
               {rows.map((b) => (
