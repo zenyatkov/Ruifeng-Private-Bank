@@ -107,7 +107,7 @@ export const POST = createValidatedApiHandler(
     }
 
     const accountId = data.accountId;
-    const amount = data.amount;
+    const amount = parseFloat(data.amount);
     const billerName = data.billerName;
     const billerCategory = data.billerCategory || "Utilities";
     const referenceNumber = data.referenceNumber || "";
