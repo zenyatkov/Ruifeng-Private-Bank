@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
-import { ErrorBoundary } from "@/components/error-boundary";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -29,7 +28,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body className="min-h-screen antialiased">
-        <ErrorBoundary>{children}</ErrorBoundary>
+        {children}
       </body>
     </html>
   );
