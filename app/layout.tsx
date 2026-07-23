@@ -16,6 +16,7 @@ export const metadata: Metadata = {
   description: "瑞峯 RuiFeng Private Bank — ultra-premium private banking across Asia. Multi-currency accounts, wealth management, FX, lending, cards, and concierge.",
   keywords: ["private banking", "Asia", "wealth management", "Singapore", "Hong Kong", "Tokyo", "multi-currency"],
   robots: { index: true, follow: true },
+  icons: { icon: "/favicon.png" },
   openGraph: {
     type: "website",
     title: "瑞峯 RuiFeng Private Bank",
