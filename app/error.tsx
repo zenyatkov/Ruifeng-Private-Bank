@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-export function GlobalErrorHandler({ error, reset }: { error: Error; reset: () => void }) {
+export default function GlobalErrorHandler({ error, reset }: { error: Error; reset: () => void }) {
   useEffect(() => {
     console.error("Global error:", error);
   }, [error]);
