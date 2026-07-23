@@ -9,7 +9,7 @@ export default function ReceiptsPage() {
   const [receipts, setReceipts] = useState<Array<Record<string, unknown>>>([]);
   const [selected, setSelected] = useState<Record<string, unknown> | null>(null);
 
-  useEffect(() => { fetch("/api/receipts").then(r => r.json()).then(d => setReceipts(d.receipts || [])); }, []);
+  useEffect(() => { fetch("/api/receipts").then(r => r.json()).then(d => setReceipts(d.data?.receipts || d.receipts || [])); }, []);
 
   if (selected) {
     const data = (selected.data || {}) as Record<string, string>;
