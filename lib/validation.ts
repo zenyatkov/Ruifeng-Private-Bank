@@ -65,18 +65,34 @@ export const updateProfileSchema = z.object({
   preferredLanguage: z.string().optional(),
 });
 
-// KYC schemas
+// KYC schemas — match the form values exactly
 export const submitKycSchema = z.object({
   fullName: z.string().min(1),
   dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  documentType: z.enum(["passport", "driver_license", "national_id", "other"]),
+  // Accept both lowercase snake_case AND capitalized display values from the form
+  documentType: z.enum(["passport", "driver_license", "national_id", "other", "Passport", "National ID", "Driving License", "Residence Permit"]).transform(v => {
+    const map: Record<string, string> = {
+      "Passport": "passport",
+      "National ID": "national_id",
+      "Driving License": "driver_license",
+      "Residence Permit": "other",
+    };
+    return map[v] || v;
+  }),
   documentNumber: z.string().min(1),
   address: z.string().min(1),
   employer: z.string().optional(),
   occupation: z.string().optional(),
   sourceOfFunds: z.string().optional(),
   annualIncome: z.string().optional(),
-  pepStatus: z.enum(["yes", "no"]).optional(),
+  // Accept both "yes"/"no" AND "Yes"/"No"/"Related to PEP" from the form
+  pepStatus: z.enum(["yes", "no", "Yes", "No", "Related to PEP"]).optional().transform(v => {
+    if (!v) return v;
+    const map: Record<string, string> = { "Yes": "yes", "No": "no", "Related to PEP": "yes" };
+    return map[v] || v;
+  }),
+  // The uploaded document file (base64 string) — optional in validation
+  documentFile: z.string().optional(),
 });
 
 // Transaction schemas
@@ -102,10 +118,10 @@ export const cardTransactionSchema = z.object({
   amount: z.string().regex(/^\d+(\.\d{1,2})?$/),
 });
 
-// Loan schemas
+// Loan schemas — termMonths can come as string from form, coerce to number
 export const applyLoanSchema = z.object({
   principal: z.string().regex(/^\d+(\.\d{1,2})?$/),
-  termMonths: z.number().int().min(1).max(84).optional().default(36),
+  termMonths: z.coerce.number().int().min(1).max(84).optional().default(36),
   productName: z.string().optional().default("Private Credit Facility"),
   purpose: z.string().optional(),
   interestRate: z.string().optional().default("4.250"),
