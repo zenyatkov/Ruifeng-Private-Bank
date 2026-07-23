@@ -28,41 +28,56 @@ function generateTOTP(secret: string): string {
 
 // GET: get 2FA status and setup URI
 export async function GET() {
-  const { user, error } = await requireUser();
-  if (!user) return NextResponse.json({ error }, { status: 401 });
-  const [row] = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
-  return NextResponse.json({ enabled: row?.totpEnabled || false, hasSecret: !!row?.totpSecret });
+  try {
+    const { user, error } = await requireUser();
+    if (!user) return NextResponse.json({ error }, { status: 401 });
+    const [row] = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
+    return NextResponse.json({ enabled: row?.totpEnabled || false, hasSecret: !!row?.totpSecret });
+  } catch (err) {
+    console.error("2FA GET error:", err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
 }
 
 // POST: setup 2FA
 export async function POST() {
-  const { user, error } = await requireUser();
-  if (!user) return NextResponse.json({ error }, { status: 401 });
-  const secret = generateSecret();
-  const b32 = base32Encode(secret);
-  await db.update(users).set({ totpSecret: secret }).where(eq(users.id, user.id));
-  const uri = `otpauth://totp/RuiFeng:${user.email}?secret=${b32}&issuer=RuiFeng%20Bank&digits=6&period=30`;
-  return NextResponse.json({ secret: b32, uri, manualKey: b32 });
+  try {
+    const { user, error } = await requireUser();
+    if (!user) return NextResponse.json({ error }, { status: 401 });
+    const secret = generateSecret();
+    const b32 = base32Encode(secret);
+    await db.update(users).set({ totpSecret: secret }).where(eq(users.id, user.id));
+    const uri = `otpauth://totp/RuiFeng:${user.email}?secret=${b32}&issuer=RuiFeng%20Bank&digits=6&period=30`;
+    return NextResponse.json({ secret: b32, uri, manualKey: b32 });
+  } catch (err) {
+    console.error("2FA POST error:", err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
 }
 
 // PATCH: verify and enable 2FA
 export async function PATCH(request: Request) {
-  const { user, error } = await requireUser();
-  if (!user) return NextResponse.json({ error }, { status: 401 });
-  const body = await request.json();
-  const code = String(body.code || "");
-  const [row] = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
-  if (!row?.totpSecret) return NextResponse.json({ error: "Setup 2FA first" }, { status: 400 });
-  const expected = generateTOTP(row.totpSecret);
-  // Allow 1 time window tolerance
-  const prevTime = Math.floor(Date.now() / 30000) - 1;
-  const prevBuf = Buffer.alloc(8); prevBuf.writeUInt32BE(prevTime, 4);
-  const prevHmac = crypto.createHmac("sha1", Buffer.from(row.totpSecret, "hex")).update(prevBuf).digest();
-  const prevOff = prevHmac[prevHmac.length - 1] & 0xf;
-  const prevCode = ((prevHmac[prevOff] & 0x7f) << 24 | prevHmac[prevOff + 1] << 16 | prevHmac[prevOff + 2] << 8 | prevHmac[prevOff + 3]) % 1000000;
-  const prev = prevCode.toString().padStart(6, "0");
+  try {
+    const { user, error } = await requireUser();
+    if (!user) return NextResponse.json({ error }, { status: 401 });
+    const body = await request.json();
+    const code = String(body.code || "");
+    const [row] = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
+    if (!row?.totpSecret) return NextResponse.json({ error: "Setup 2FA first" }, { status: 400 });
+    const expected = generateTOTP(row.totpSecret);
+    // Allow 1 time window tolerance
+    const prevTime = Math.floor(Date.now() / 30000) - 1;
+    const prevBuf = Buffer.alloc(8); prevBuf.writeUInt32BE(prevTime, 4);
+    const prevHmac = crypto.createHmac("sha1", Buffer.from(row.totpSecret, "hex")).update(prevBuf).digest();
+    const prevOff = prevHmac[prevHmac.length - 1] & 0xf;
+    const prevCode = ((prevHmac[prevOff] & 0x7f) << 24 | prevHmac[prevOff + 1] << 16 | prevHmac[prevOff + 2] << 8 | prevHmac[prevOff + 3]) % 1000000;
+    const prev = prevCode.toString().padStart(6, "0");
 
-  if (code !== expected && code !== prev) return NextResponse.json({ error: "Invalid code" }, { status: 400 });
-  await db.update(users).set({ totpEnabled: true }).where(eq(users.id, user.id));
-  return NextResponse.json({ ok: true, enabled: true });
+    if (code !== expected && code !== prev) return NextResponse.json({ error: "Invalid code" }, { status: 400 });
+    await db.update(users).set({ totpEnabled: true }).where(eq(users.id, user.id));
+    return NextResponse.json({ ok: true, enabled: true });
+  } catch (err) {
+    console.error("2FA PATCH error:", err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
 }
