@@ -13,12 +13,13 @@ import {
 import { requireUser } from "@/lib/auth";
 
 export async function GET() {
-  const { user, error } = await requireUser(["admin", "relationship_manager"]);
-  if (!user) {
-    return NextResponse.json({ error }, { status: error === "Forbidden" ? 403 : 401 });
-  }
+  try {
+    const { user, error } = await requireUser(["admin", "relationship_manager"]);
+    if (!user) {
+      return NextResponse.json({ error }, { status: error === "Forbidden" ? 403 : 401 });
+    }
 
-  const [userCount] = await db.select({ value: count() }).from(users);
+    const [userCount] = await db.select({ value: count() }).from(users);
   const [clientCount] = await db
     .select({ value: count() })
     .from(users)
@@ -90,4 +91,8 @@ export async function GET() {
     recentLogs,
     clientsByCountry,
   });
+  } catch (err) {
+    console.error("Admin stats error:", err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
 }
