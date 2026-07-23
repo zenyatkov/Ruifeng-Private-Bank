@@ -53,7 +53,7 @@ export const POST = createValidatedApiHandler(
     }
 
     const fromAccountId = data.fromAccountId;
-    const amount = data.amount;
+    const amount = parseFloat(data.amount);
     const description = data.description || "Transfer";
     const transferType = data.transferType || "external";
     const toAccountId = transferType === "internal" ? data.toAccountId : null;
