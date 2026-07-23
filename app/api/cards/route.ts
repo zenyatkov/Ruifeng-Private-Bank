@@ -205,7 +205,7 @@ export async function PATCH(request: NextRequest) {
 
     const [updated] = await db.update(cards).set(updates).where(eq(cards.id, id)).returning();
 
-    logger.info("Card updated", { userId: user.id, cardId: id, status: newStatus, requestId });
+    logger.info("Card updated", { userId: user.id, cardId: id, status: newStatus });
 
     return successResponse({ card: updated });
   } catch (error) {
