@@ -17,7 +17,7 @@ export const POST = createValidatedApiHandler(
       throw error === "Forbidden" ? new AuthorizationError() : new AuthenticationError();
     }
 
-    // Update user KYC details
+    // Update user KYC details (transformed values from schema)
     await db
       .update(users)
       .set({
@@ -31,6 +31,7 @@ export const POST = createValidatedApiHandler(
         kycSourceOfFunds: data.sourceOfFunds || null,
         kycAnnualIncome: data.annualIncome || null,
         kycPepStatus: data.pepStatus || null,
+        kycDocumentFile: data.documentFile || null,
         kycStatus: "review",
         updatedAt: new Date(),
       })
