@@ -1,11 +1,27 @@
 /* eslint-disable @next/next/no-img-element */
+"use client";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 export function Logo({ className, light = false, compact = false, lang }: { className?: string; light?: boolean; compact?: boolean; lang?: string }) {
+  const [imgError, setImgError] = useState(false);
   const showChinese = !lang || ["zh-CN","zh-TW","ja","ko"].includes(lang);
+
   return (
     <div className={cn("flex items-center gap-3", className)}>
-      <img src="/images/logo-icon.png" alt="瑞峯" className="h-10 w-10 rounded-xl shadow-lg" />
+      {imgError ? (
+        // Fallback: jade gradient icon with 峯 character
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl jade-gradient shadow-lg text-white text-sm font-bold">
+          峯
+        </div>
+      ) : (
+        <img
+          src="/images/logo-icon.png"
+          alt="瑞峯"
+          className="h-10 w-10 rounded-xl shadow-lg"
+          onError={() => setImgError(true)}
+        />
+      )}
       {!compact && (
         <div className="leading-tight">
           <div className="flex items-center gap-2">
