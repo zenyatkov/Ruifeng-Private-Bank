@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState, FormEvent } from "react";
-import { Shield, Smartphone, Key, Bell, Globe, Lock, Eye, EyeOff } from "lucide-react";
+import { Shield, Smartphone, Key, Bell, Globe, Lock, Eye, EyeOff, Sun, Moon, Monitor } from "lucide-react";
 import { Alert, Button, Input, Label, PageHeader, Panel, Select } from "@/components/ui";
 import { LANGUAGE_LABELS, CURRENCY_LABELS } from "@/lib/i18n";
+import { ThemeToggle, useUserPrefs } from "@/components/user-context";
 
 export default function SecurityPage() {
   const [tfaStatus, setTfaStatus] = useState<{ enabled: boolean } | null>(null);
@@ -33,13 +34,13 @@ export default function SecurityPage() {
     e.preventDefault(); setLoading(true); setMsg("");
     const r = await fetch("/api/auth/2fa", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code }) });
     const d = await r.json(); setLoading(false);
-    if (d.ok) { setMsg("✓ 2FA enabled"); setSetupData(null); setTfaStatus({ enabled: true }); } else setMsg(d.error || "Invalid");
+    if (d.ok || d.data?.ok) { setMsg("✓ 2FA enabled"); setSetupData(null); setTfaStatus({ enabled: true }); } else setMsg(d.error || "Invalid");
   }
   async function changePw(e: FormEvent) {
     e.preventDefault(); setPwMsg("");
     const r = await fetch("/api/profile", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ currentPassword: currentPw, newPassword: newPw }) });
     const d = await r.json();
-    if (r.ok) { setPwMsg("✓ Password updated"); setCurrentPw(""); setNewPw(""); } else setPwMsg(d.error || "Failed");
+    if (r.ok) { setPwMsg("✓ Password updated"); setCurrentPw(""); setNewPw(""); } else setPwMsg(d.error || d.data?.error || "Failed");
   }
   async function changePin(e: FormEvent) {
     e.preventDefault(); setPinMsg("");
@@ -53,9 +54,15 @@ export default function SecurityPage() {
     setPrefMsg("✓ Saved"); window.location.reload();
   }
 
+  const themes = [
+    { id: "light", icon: <Sun className="h-5 w-5" />, label: "Light", desc: "Clean white backgrounds" },
+    { id: "dark", icon: <Moon className="h-5 w-5" />, label: "Dark", desc: "Reduced glare, easy on eyes" },
+    { id: "system", icon: <Monitor className="h-5 w-5" />, label: "System", desc: "Follows your OS setting" },
+  ];
+
   return (
     <div>
-      <PageHeader title="Settings & Security" subtitle="Manage your security, preferences, and account settings." />
+      <PageHeader title="Settings & Security" subtitle="Manage your security, preferences, and theme." />
       <div className="grid gap-6 xl:grid-cols-2">
         {/* 2FA */}
         <Panel title="Two-Factor Authentication">
@@ -115,6 +122,27 @@ export default function SecurityPage() {
             </div>
             {prefMsg && <Alert type="success">{prefMsg}</Alert>}
             <Button onClick={savePrefs} className="w-full">Save & apply</Button>
+          </div>
+        </Panel>
+
+        {/* Theme Selection */}
+        <Panel title="Theme & Appearance">
+          <div className="space-y-4">
+            <p className="text-sm text-ink-600/70">Choose how the site looks. Dark mode reduces eye strain.</p>
+            <div className="grid grid-cols-3 gap-3">
+              {themes.map(th => (
+                <button key={th.id} onClick={() => {
+                  localStorage.setItem("ruiFengTheme", th.id);
+                  document.documentElement.classList.toggle("dark", th.id === "dark" || (th.id === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches));
+                  fetch("/api/profile", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ themePreference: th.id }) }).catch(() => {});
+                }}
+                  className={`rounded-2xl border p-4 text-center transition hover-lift ${localStorage.getItem("ruiFengTheme") === th.id ? "border-jade-500/40 bg-jade-500/5 ring-1 ring-jade-500/20" : "border-ink-900/5 bg-white"}`}>
+                  <div className="flex justify-center">{th.icon}</div>
+                  <p className="mt-2 font-semibold text-sm text-ink-900">{th.label}</p>
+                  <p className="mt-1 text-xs text-ink-600/50">{th.desc}</p>
+                </button>
+              ))}
+            </div>
           </div>
         </Panel>
 
