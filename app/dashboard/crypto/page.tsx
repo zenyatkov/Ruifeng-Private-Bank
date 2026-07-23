@@ -15,7 +15,7 @@ export default function CryptoPage() {
   const [copied, setCopied] = useState("");
   const [selectedCrypto, setSelectedCrypto] = useState("BTC");
 
-  useEffect(() => { fetch("/api/crypto").then(r => r.json()).then(d => setWallets(d.wallets || {})); }, []);
+  useEffect(() => { fetch("/api/crypto").then(r => r.json()).then(d => setWallets(d.data?.wallets || d.wallets || {})); }, []);
 
   function copy(addr: string, key: string) {
     navigator.clipboard.writeText(addr);
