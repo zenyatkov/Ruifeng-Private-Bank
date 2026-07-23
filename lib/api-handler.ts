@@ -89,10 +89,20 @@ export function createValidatedApiHandler<T>(
     const result = schema.safeParse(body);
 
     if (!result.success) {
+      // Return 400 validation error directly, never 500
       const errors = result.error.errors
         .map((e) => `${e.path.join(".")}: ${e.message}`)
         .join(", ");
-      return errorResponse(new Error(errors));
+      return NextResponse.json(
+        {
+          ok: false,
+          code: "VALIDATION_ERROR",
+          error: errors,
+          requestId: context.requestId,
+          timestamp: new Date().toISOString(),
+        },
+        { status: 400 }
+      );
     }
 
     return handler(request, result.data, context);
