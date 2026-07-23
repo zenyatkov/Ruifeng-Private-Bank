@@ -28,7 +28,39 @@
 }
 
 html { scroll-behavior: smooth; }
-body { font-family: var(--font-sans); background: var(--color-rice-50); color: var(--color-ink-900); }
+body { font-family: var(--font-sans); background: var(--color-rice-50); color: var(--color-ink-900); transition: background 0.3s, color 0.3s; }
+
+/* Dark mode */
+html.dark body { background: #080C18; color: #E5E7EB; }
+html.dark .bg-rice-50 { background: #0F1629; }
+html.dark .bg-rice-100 { background: #172038; }
+html.dark .bg-white { background: #1F2B4B; }
+html.dark .text-ink-900 { color: #E5E7EB; }
+html.dark .text-ink-800 { color: #D1D5DB; }
+html.dark .text-ink-700 { color: #9CA3AF; }
+html.dark .text-ink-600 { color: #9CA3AF; }
+html.dark .text-ink-600\/70 { color: rgba(156,163,175,0.7); }
+html.dark .text-ink-600\/60 { color: rgba(156,163,175,0.6); }
+html.dark .text-ink-600\/50 { color: rgba(156,163,175,0.5); }
+html.dark .text-ink-600\/40 { color: rgba(156,163,175,0.4); }
+html.dark .text-ink-600\/30 { color: rgba(156,163,175,0.3); }
+html.dark .border-ink-900\/10 { border-color: rgba(229,231,235,0.1); }
+html.dark .border-ink-900\/8 { border-color: rgba(229,231,235,0.08); }
+html.dark .border-ink-900\/5 { border-color: rgba(229,231,235,0.05); }
+html.dark .bg-vermillion-500\/10 { background: rgba(225,29,72,0.2); }
+html.dark .bg-vermillion-500\/5 { background: rgba(225,29,72,0.15); }
+html.dark .bg-vermillion-500\/8 { background: rgba(225,29,72,0.2); }
+html.dark .bg-jade-500\/10 { background: rgba(22,163,74,0.2); }
+html.dark .bg-jade-500\/5 { background: rgba(22,163,74,0.15); }
+html.dark .bg-jade-500\/4 { background: rgba(22,163,74,0.1); }
+html.dark .card-shadow { box-shadow: 0 4px 24px rgba(0,0,0,0.3); }
+html.dark .bg-rice-50\/80 { background: rgba(15,22,41,0.8); }
+html.dark .hover-lift:hover { box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+html.dark table.data-table th { background: #172038; color: #D1D5DB; }
+html.dark table.data-table td { border-top-color: rgba(229,231,235,0.08); color: #D1D5DB; }
+html.dark .table-wrap { background: #1F2B4B; border-color: rgba(229,231,235,0.1); }
+html.dark .premium-card { background: linear-gradient(135deg, #172038 0%, #0F1629 50%, #1F2B4B 100%); }
+
 .font-display { font-family: var(--font-display); }
 
 .bg-mesh {
