@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { users } from "@/db/schema";
+import { users, notifications } from "@/db/schema";
 import { sendEmail, otpEmailHtml } from "@/lib/email";
 import { verifyEmailSchema } from "@/lib/validation";
 import { createValidatedApiHandler } from "@/lib/api-handler";
@@ -27,11 +27,27 @@ export async function POST(request: NextRequest) {
     const expiry = new Date(Date.now() + 10 * 60 * 1000);
 
     await db.update(users).set({ emailOtp: otp, emailOtpExpiry: expiry }).where(eq(users.id, user.id));
-    await sendEmail(email, "瑞峯 RuiFeng — Email Verification Code", otpEmailHtml(otp));
 
-    logger.info("Verification code sent", { userId: user.id });
+    // Try to send email, but always create in-app notification as fallback
+    const emailSent = await sendEmail(email, "瑞峯 RuiFeng — Email Verification Code", otpEmailHtml(otp));
 
-    return successResponse({ message: "Verification code sent to your email" });
+    // Create in-app notification with the OTP code (so user can find it even if email fails)
+    await db.insert(notifications).values({
+      userId: user.id,
+      title: emailSent ? "Email Verification Code Sent" : "Email Verification Code (In-App)",
+      body: `Your verification code is: ${otp}. This code expires in 10 minutes. ${emailSent ? "Check your email for details." : "We couldn't deliver the email to your address. Use this code to verify your email in the app."}`,
+      type: emailSent ? "info" : "alert",
+      isRead: false,
+    });
+
+    logger.info("Verification code sent", { userId: user.id, emailSent });
+
+    return successResponse({
+      message: emailSent
+        ? "Verification code sent to your email"
+        : "Verification code available in your in-app notifications (email delivery failed)",
+      emailSent,
+    });
   } catch (error) {
     logger.error("Send OTP error", error);
     throw error;
@@ -68,4 +84,3 @@ export const PATCH = createValidatedApiHandler(
     return successResponse({ verified: true });
   }
 );
-
