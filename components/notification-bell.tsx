@@ -3,10 +3,34 @@
 import { useEffect, useRef, useState } from "react";
 import { Bell, X, Check, CheckCheck } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useUserPrefs } from "@/components/user-context";
+import { t } from "@/lib/i18n";
 
 type Notification = { id: number; title: string; body: string; type: string | null; isRead: boolean; createdAt: string };
 
+// Map notification titles to destination URLs
+function getNotificationLink(title: string): string {
+  const lower = title.toLowerCase();
+  if (lower.includes("transfer") || lower.includes("sent") || lower.includes("wire")) return "/dashboard/transfers";
+  if (lower.includes("loan") || lower.includes("credit")) return "/dashboard/loans";
+  if (lower.includes("card") || lower.includes("card approved")) return "/dashboard/cards";
+  if (lower.includes("bill") || lower.includes("payment completed") || lower.includes("payment declined")) return "/dashboard/bills";
+  if (lower.includes("kyc") || lower.includes("verification") || lower.includes("identity")) return "/dashboard/kyc";
+  if (lower.includes("fx") || lower.includes("conversion") || lower.includes("rate")) return "/dashboard/fx";
+  if (lower.includes("investment") || lower.includes("portfolio")) return "/dashboard/investments";
+  if (lower.includes("receipt")) return "/dashboard/receipts";
+  if (lower.includes("password") || lower.includes("security") || lower.includes("2fa")) return "/dashboard/security";
+  if (lower.includes("welcome") || lower.includes("onboarding")) return "/dashboard/kyc";
+  if (lower.includes("support") || lower.includes("reply") || lower.includes("ticket")) return "/dashboard/support";
+  if (lower.includes("funds credited") || lower.includes("funds debited") || lower.includes("adjustment")) return "/dashboard/accounts";
+  // Default: go to dashboard
+  return "/dashboard";
+}
+
 export function NotificationBell({ initialCount }: { initialCount: number }) {
+  const router = useRouter();
+  const { lang } = useUserPrefs();
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<Notification[]>([]);
   const [count, setCount] = useState(initialCount);
@@ -25,7 +49,9 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
     if (!loaded) {
       const res = await fetch("/api/notifications");
       const d = await res.json();
-      setItems(d.notifications || []);
+      // Handle successResponse wrapper
+      const notifs = d.data?.notifications || d.notifications || [];
+      setItems(notifs);
       setLoaded(true);
     }
     setOpen(v => !v);
@@ -41,6 +67,13 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
     await fetch("/api/notifications", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ markAll: true }) });
     setItems(prev => prev.map(n => ({ ...n, isRead: true })));
     setCount(0);
+  }
+
+  function handleNotificationClick(n: Notification) {
+    if (!n.isRead) markRead(n.id);
+    const link = getNotificationLink(n.title);
+    setOpen(false);
+    router.push(link);
   }
 
   const typeIcon: Record<string, string> = { success: "🟢", alert: "🔴", info: "🔵" };
@@ -60,11 +93,11 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
         <div className="absolute right-0 top-12 z-50 w-96 max-w-[calc(100vw-2rem)] rounded-2xl border border-ink-900/10 bg-white shadow-2xl animate-slide-in">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-ink-900/5 px-4 py-3">
-            <p className="font-display text-sm font-semibold text-ink-900">Notifications</p>
+            <p className="font-display text-sm font-semibold text-ink-900">{t(lang, "notifications")}</p>
             <div className="flex items-center gap-2">
               {count > 0 && (
                 <button onClick={markAll} className="flex items-center gap-1 text-[11px] font-semibold text-jade-600 hover:text-jade-700">
-                  <CheckCheck className="h-3 w-3" /> Mark all read
+                  <CheckCheck className="h-3 w-3" /> {t(lang, "markAllRead") || "Mark all read"}
                 </button>
               )}
               <button onClick={() => setOpen(false)} className="rounded-lg p-1 hover:bg-rice-100"><X className="h-4 w-4 text-ink-600/50" /></button>
@@ -74,12 +107,13 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
           {/* Items */}
           <div className="max-h-80 overflow-y-auto scrollbar-thin">
             {items.length === 0 ? (
-              <div className="px-4 py-8 text-center text-sm text-ink-600/50">No notifications</div>
+              <div className="px-4 py-8 text-center text-sm text-ink-600/50">{t(lang, "noNotifications") || "No notifications"}</div>
             ) : (
               items.slice(0, 15).map(n => (
-                <div key={n.id}
-                  className={`border-b border-ink-900/5 px-4 py-3 transition hover:bg-rice-50 ${n.isRead ? "opacity-60" : ""}`}
-                  onClick={() => !n.isRead && markRead(n.id)}
+                <button
+                  key={n.id}
+                  className={`w-full text-left border-b border-ink-900/5 px-4 py-3 transition hover:bg-rice-50 cursor-pointer ${n.isRead ? "opacity-60" : ""}`}
+                  onClick={() => handleNotificationClick(n)}
                 >
                   <div className="flex items-start gap-2">
                     <span className="mt-0.5 text-sm">{typeIcon[n.type || "info"] || "🔵"}</span>
@@ -90,7 +124,7 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
                     </div>
                     {!n.isRead && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-jade-500" />}
                   </div>
-                </div>
+                </button>
               ))
             )}
           </div>
@@ -98,7 +132,7 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
           {/* Footer */}
           <div className="border-t border-ink-900/5 px-4 py-2">
             <Link href="/dashboard/notifications" onClick={() => setOpen(false)} className="block text-center text-xs font-semibold text-jade-600 hover:text-jade-700 py-1">
-              View all notifications →
+              {t(lang, "viewAllNotifications") || "View all notifications"} →
             </Link>
           </div>
         </div>
