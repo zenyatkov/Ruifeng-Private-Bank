@@ -7,11 +7,14 @@ import { PageHeader, Panel, Alert, Button, Input, Label, Select, StatusBadge, Em
 import { PinEntry } from "@/components/pin-entry";
 import { playNotificationSound } from "@/components/notifications-client";
 import { TransactionReceipt } from "@/components/receipt";
+import { useUserPrefs } from "@/components/user-context";
+import { t } from "@/lib/i18n";
 
 type Biller = { name: string; category: string };
 
 export default function BillsPage() {
   const router = useRouter();
+  const { lang } = useUserPrefs();
   const [billers, setBillers] = useState<Biller[]>([]);
   const [history, setHistory] = useState<Array<Record<string, unknown>>>([]);
   const [accounts, setAccounts] = useState<Array<Record<string, unknown>>>([]);
@@ -29,8 +32,22 @@ export default function BillsPage() {
   const [receipt, setReceipt] = useState<{ label: string; value: string }[] | null>(null);
 
   useEffect(() => {
-    fetch("/api/bills").then(r => r.json()).then(d => { setBillers(d.billers || []); setHistory(d.history || []); });
-    fetch("/api/accounts").then(r => r.json()).then(d => { setAccounts(d.accounts || []); if (d.accounts?.[0]) setAccountId(String(d.accounts[0].id)); });
+    // Fetch billers for user's country by passing it to the API
+    fetch("/api/auth/me").then(r => r.json()).then(me => {
+      const country = me.user?.country || "Singapore";
+      fetch(`/api/bills?country=${encodeURIComponent(country)}`).then(r => r.json()).then(d => {
+        // Handle both wrapped successResponse and plain JSON
+        const billerData = d.data?.billers || d.billers || [];
+        const historyData = d.data?.history || d.history || [];
+        setBillers(billerData);
+        setHistory(historyData);
+      });
+    });
+    fetch("/api/accounts").then(r => r.json()).then(d => {
+      const accts = d.data?.accounts || d.accounts || [];
+      setAccounts(accts);
+      if (accts[0]) setAccountId(String(accts[0].id));
+    });
   }, []);
 
   async function executePay() {
@@ -42,7 +59,11 @@ export default function BillsPage() {
     });
     const data = await res.json();
     setLoading(false);
-    if (!res.ok) { setError(data.error || "Failed"); playNotificationSound("error"); return; }
+    if (!res.ok) { setError(data.error || data.data?.error || "Failed"); playNotificationSound("error"); return; }
+
+    const bill = data.data?.bill || data.bill;
+    const newBalance = data.data?.newBalance || data.newBalance;
+    const ref = data.data?.reference || data.reference;
 
     // Show processing animation then pending confirmation
     setProcessing(true);
@@ -50,18 +71,24 @@ export default function BillsPage() {
       setProcessing(false);
       playNotificationSound("info");
       setReceipt([
-        { label: "Status", value: "Pending" },
-        { label: "Biller", value: biller },
-        { label: "Category", value: b?.category || "Utilities" },
-        { label: "Reference", value: data.reference },
+        { label: t(lang, "status"), value: "Pending" },
+        { label: t(lang, "biller") || "Biller", value: biller },
+        { label: t(lang, "category") || "Category", value: b?.category || "Utilities" },
+        { label: t(lang, "reference"), value: ref },
         { label: "Bill Reference", value: reference || "—" },
-        { label: "Amount", value: `${data.bill.currency} ${data.bill.amount}` },
-        { label: "New Balance", value: `${data.bill.currency} ${data.newBalance}` },
-        { label: "Date", value: new Date().toLocaleString() },
-        { label: "Note", value: "Your payment is being processed." },
+        { label: t(lang, "amount"), value: `${bill?.currency || "USD"} ${bill?.amount || amount}` },
+        { label: t(lang, "balance") || "New Balance", value: `${bill?.currency || "USD"} ${newBalance}` },
+        { label: t(lang, "date"), value: new Date().toLocaleString() },
+        { label: "Note", value: t(lang, "pending") + " — " + "Your payment is being processed." },
       ]);
       setAmount(""); setReference("");
-      fetch("/api/bills").then(r => r.json()).then(d => setHistory(d.history || []));
+      // Refresh history
+      fetch("/api/auth/me").then(r => r.json()).then(me => {
+        const country = me.user?.country || "Singapore";
+        fetch(`/api/bills?country=${encodeURIComponent(country)}`).then(r => r.json()).then(d => {
+          setHistory(d.data?.history || d.history || []);
+        });
+      });
       router.refresh();
     }, 3000);
   }
@@ -70,18 +97,12 @@ export default function BillsPage() {
   if (processing) {
     return (
       <div>
-        <PageHeader title="Bill Payments" />
+        <PageHeader title={t(lang, "billPayments")} />
         <div className="flex min-h-[50vh] items-center justify-center">
           <div className="text-center">
             <Loader2 className="h-12 w-12 mx-auto animate-spin text-jade-500" />
-            <p className="mt-4 font-display text-xl font-semibold text-ink-900">Processing payment...</p>
+            <p className="mt-4 font-display text-xl font-semibold text-ink-900">{t(lang, "loading")}</p>
             <p className="mt-2 text-sm text-ink-600/70">Verifying with {biller}. Please wait.</p>
-            <div className="mt-4 flex gap-1 justify-center">
-              <span className="h-2 w-8 rounded-full bg-jade-500" />
-              <span className="h-2 w-6 rounded-full bg-jade-400 progress-animate" />
-              <span className="h-2 w-6 rounded-full bg-ink-900/10" />
-            </div>
-            <p className="mt-2 text-xs text-ink-600/40">Processing → Verifying → Complete</p>
           </div>
         </div>
       </div>
@@ -92,7 +113,7 @@ export default function BillsPage() {
   if (receipt) {
     return (
       <div>
-        <PageHeader title="Bill Payments" />
+        <PageHeader title={t(lang, "billPayments")} />
         <div className="mx-auto max-w-lg">
           <TransactionReceipt type="debit" lines={receipt} status="completed" onClose={() => setReceipt(null)} />
         </div>
@@ -102,32 +123,32 @@ export default function BillsPage() {
 
   return (
     <div>
-      <PageHeader title="Bill Payments" subtitle="Pay utilities, telecom, and government bills." />
+      <PageHeader title={t(lang, "billPayments")} subtitle={t(lang, "payUtilities") || "Pay utilities, telecom, and government bills."} />
       {showPin && <PinEntry onVerified={executePay} onCancel={() => setShowPin(false)} />}
       <div className="grid gap-6 xl:grid-cols-2">
-        <Panel title="Pay a bill">
+        <Panel title={t(lang, "payBill") || "Pay a bill"}>
           {error && <Alert>{error}</Alert>}
           <form onSubmit={(e: FormEvent) => { e.preventDefault(); setShowPin(true); }} className="space-y-4">
-            <div><Label>Biller</Label>
+            <div><Label>{t(lang, "biller") || "Biller"}</Label>
               <Select value={biller} onChange={e => { setBiller(e.target.value); const b = billers.find(x => x.name === e.target.value); setCategory(b?.category || ""); }}>
-                <option value="">Select biller…</option>
+                <option value="">{t(lang, "selectBiller") || "Select biller for your country…"}</option>
                 {billers.map(b => <option key={b.name} value={b.name}>{b.name} ({b.category})</option>)}
               </Select>
             </div>
-            <div><Label>Bill reference number</Label><Input value={reference} onChange={e => setReference(e.target.value)} placeholder="Account/reference" /></div>
-            <div><Label>Amount</Label><Input type="number" min="0.01" step="0.01" value={amount} onChange={e => setAmount(e.target.value)} required /></div>
-            <div><Label>Pay from</Label>
+            <div><Label>{t(lang, "reference") || "Bill reference number"}</Label><Input value={reference} onChange={e => setReference(e.target.value)} placeholder="Account/reference" /></div>
+            <div><Label>{t(lang, "amount")}</Label><Input type="number" min="0.01" step="0.01" value={amount} onChange={e => setAmount(e.target.value)} required /></div>
+            <div><Label>{t(lang, "fromAccount") || "Pay from"}</Label>
               <Select value={accountId} onChange={e => setAccountId(e.target.value)}>
                 {accounts.map((a: Record<string, unknown>) => <option key={String(a.id)} value={String(a.id)}>{String(a.nickname || a.accountNumber)} · {String(a.currency)} {String(a.balance)}</option>)}
               </Select>
             </div>
             <Button type="submit" className="w-full" disabled={loading || !biller || !amount}>
-              {loading ? "Processing…" : "🔒 Pay bill"}
+              {loading ? t(lang, "loading") : "🔒 " + (t(lang, "submit") || "Pay bill")}
             </Button>
           </form>
         </Panel>
-        <Panel title="Payment history">
-          {history.length === 0 ? <EmptyState title="No bill payments yet" /> : (
+        <Panel title={t(lang, "paymentHistory") || "Payment history"}>
+          {history.length === 0 ? <EmptyState title={t(lang, "noBillPayments") || "No bill payments yet"} /> : (
             <div className="space-y-2">
               {history.map((h, i) => (
                 <div key={i} className="rounded-xl border border-ink-900/5 bg-rice-50 p-3 flex justify-between items-center">
