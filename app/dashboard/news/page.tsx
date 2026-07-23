@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { RefreshCw, TrendingUp, Globe, ExternalLink } from "lucide-react";
 import { PageHeader, Panel } from "@/components/ui";
+import { useUserPrefs } from "@/components/user-context";
+import { t } from "@/lib/i18n";
 
 type NewsItem = {
   title: string;
@@ -13,6 +15,7 @@ type NewsItem = {
 };
 
 export default function NewsPage() {
+  const { lang } = useUserPrefs();
   const [items, setItems] = useState<NewsItem[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [live, setLive] = useState(false);
@@ -53,8 +56,8 @@ export default function NewsPage() {
   return (
     <div>
       <PageHeader
-        title="Financial News · 财经新闻"
-        subtitle={live ? "Live Asia-Pacific financial news from global sources. Auto-refreshes every 30 seconds." : "Asia-Pacific financial news. Auto-refreshes every 15 seconds."}
+        title={t(lang, "news")}
+        subtitle={live ? "Live Asia-Pacific financial news. Auto-refreshes every 30s." : "Asia-Pacific financial news. Auto-refreshes every 15s."}
         actions={
           <div className="flex items-center gap-3">
             <button
