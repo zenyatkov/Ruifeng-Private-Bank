@@ -6,10 +6,12 @@ import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { EmptyState, PageHeader, Panel, StatusBadge } from "@/components/ui";
 import { TransferForm } from "@/components/forms/transfer-form";
 import { ViewReceiptButton } from "@/components/view-receipt-button";
+import { t } from "@/lib/i18n";
 
 export default async function TransfersPage() {
   const user = await getCurrentUser();
   if (!user) return null;
+  const lang = user.preferredLanguage || "en";
 
   const userAccounts = await db.select().from(accounts).where(eq(accounts.userId, user.id));
   const ids = userAccounts.map(a => a.id);
@@ -21,14 +23,14 @@ export default async function TransfersPage() {
 
   return (
     <div>
-      <PageHeader title="Transfers" subtitle="Send money securely across accounts and banks." />
+      <PageHeader title={t(lang, "transfers")} subtitle={t(lang, "transfersSubtitle")} />
       <div className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
-        <Panel title="New Transfer">
+        <Panel title={t(lang, "newTransfer")}>
           <TransferForm accounts={userAccounts} />
         </Panel>
 
-        <Panel title="Recent Activity">
-          {allTx.length === 0 ? <EmptyState title="No activity yet" /> : (
+        <Panel title={t(lang, "recentActivity")}>
+          {allTx.length === 0 ? <EmptyState title={t(lang, "noActivityYet")} /> : (
             <div className="space-y-2 max-h-[650px] overflow-y-auto scrollbar-thin pr-1">
               {allTx.map((tx, i) => {
                 const isCredit = ["deposit", "interest", "loan_disbursement"].includes(tx.type);
@@ -36,11 +38,9 @@ export default async function TransfersPage() {
                 return (
                   <div key={tx.id} className="rounded-2xl border border-ink-900/5 bg-white p-4 hover-lift animate-fade-in" style={{ animationDelay: `${i * 30}ms` }}>
                     <div className="flex items-start gap-3">
-                      {/* Icon */}
                       <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-bold ${isCredit ? "bg-jade-500/10 text-jade-600" : "bg-vermillion-500/8 text-vermillion-500"}`}>
                         {isCredit ? "↓" : "↑"}
                       </div>
-                      {/* Details */}
                       <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
@@ -51,10 +51,9 @@ export default async function TransfersPage() {
                             <p className={`text-sm font-bold ${isCredit ? "text-jade-600" : "text-ink-900"}`}>
                               {isCredit ? "+" : "−"}{formatCurrency(tx.amount, tx.currency)}
                             </p>
-                            {tx.fee && parseFloat(tx.fee) > 0 && <p className="text-[10px] text-ink-600/40">Fee: {formatCurrency(tx.fee, tx.currency)}</p>}
+                            {tx.fee && parseFloat(tx.fee) > 0 && <p className="text-[10px] text-ink-600/40">{t(lang, "fee")}: {formatCurrency(tx.fee, tx.currency)}</p>}
                           </div>
                         </div>
-                        {/* Status + receipt */}
                         <div className="mt-2 flex items-center gap-2">
                           <StatusBadge status={tx.status} />
                           <span className="text-[10px] font-mono text-ink-600/40">{tx.reference}</span>
