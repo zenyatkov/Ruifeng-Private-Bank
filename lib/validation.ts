@@ -104,7 +104,7 @@ export const transferSchema = z.object({
   narration: z.string().optional(),
   description: z.string().optional(),
   transferType: z.enum(["internal", "external"]).optional().default("external"),
-  pin: z.string().length(4),
+  pin: z.string().min(4).max(6).optional(),
   beneficiaryName: z.string().optional(),
   beneficiaryBank: z.string().optional(),
   beneficiaryAccount: z.string().optional(),
@@ -138,7 +138,7 @@ export const payBillSchema = z.object({
   billerCode: z.string().optional(),
   referenceNumber: z.string().optional(),
   amount: z.string().regex(/^\d+(\.\d{1,2})?$/),
-  pin: z.string().length(4),
+  pin: z.string().min(4).max(6).optional(),
 });
 
 // Card schemas
