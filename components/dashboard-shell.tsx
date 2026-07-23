@@ -33,6 +33,7 @@ import { useState } from "react";
 import { Logo } from "@/components/logo";
 import { FloatingParticles } from "@/components/particles";
 import { LangCurrencyDropdowns } from "@/components/header-dropdowns";
+import { ThemeToggle } from "@/components/user-context";
 import { AiChatWidget } from "@/components/ai-chat";
 import { NotificationBell } from "@/components/notification-bell";
 import { MobileBottomNav } from "@/components/mobile-nav";
@@ -198,6 +199,7 @@ export function DashboardShell({
               <div className="flex items-center gap-3">
                 {/* Language & Currency dropdowns */}
                 <LangCurrencyDropdowns lang={lang} currency={user.preferredCurrency} />
+                <ThemeToggle />
                 <NotificationBell initialCount={notificationsCount} />
                 <div className="hidden items-center gap-3 rounded-2xl border border-ink-900/10 bg-white px-3 py-2 sm:flex">
                   <div className="flex h-9 w-9 items-center justify-center rounded-full jade-gradient text-xs font-bold text-white">
