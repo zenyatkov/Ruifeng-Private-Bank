@@ -4,8 +4,13 @@ import { accounts, transactions, users } from "@/db/schema";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { PageHeader, Panel, StatusBadge } from "@/components/ui";
 import { TransactionActions, TransactionDetailToggle } from "@/components/admin/transaction-actions";
+import { getCurrentUser } from "@/lib/auth";
+import { t } from "@/lib/i18n";
+
 
 export default async function AdminTransactionsPage() {
+  const user = await getCurrentUser();
+  const lang = user?.preferredLanguage || "en";
   const rows = await db.select().from(transactions).orderBy(desc(transactions.createdAt)).limit(200);
 
   // Get account → user mapping
@@ -24,7 +29,7 @@ export default async function AdminTransactionsPage() {
 
   return (
     <div>
-      <PageHeader title="Transaction Review" subtitle="Full transaction details for compliance review before approval." />
+      <PageHeader title={t(lang, "adminTransactionReview") || "Transaction Review"} subtitle={t(lang, "adminTransactionSub") || "Full transaction details for compliance review before approval."} />
       <Panel>
         <div className="space-y-3">
           {rows.map(tx => {
