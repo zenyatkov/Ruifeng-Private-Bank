@@ -221,4 +221,13 @@ export const translations: Record<string, string> = {
     todayTransactions: "ธุรกรรมวันนี้",
     pendingApprovals: "รอการอนุมัติ",
     greeting: "สวัสดี",
+    kycRequiredTitle: "จำเป็นต้องยืนยันตัวตน",
+    kycRequiredBody: "หากต้องการใช้บริการธนาคาร เช่น โอนเงิน บัตร และการลงทุน คุณต้องยืนยันตัวตน KYC ก่อน",
+    kycRequiredAction: "ยืนยันตัวตนเพื่อเปิดใช้งานทั้งหมด",
+    kycReviewTitle: "KYC อยู่ระหว่างตรวจสอบ",
+    kycReviewBody: "เอกสารของคุณกำลังตรวจสอบ โดยใช้เวลาประมาณ 24-48 ชั่วโมง จะแจ้งเตือนเมื่อได้รับอนุมัติ",
+    kycRejectedTitle: "KYC ถูกปฏิเสธ",
+    kycRejectedBody: "การยืนยันตัวตนของคุณไม่ได้รับอนุมัติ กรุณาติดต่อทีมคอนเซียร์จ",
+    kycRejectedAction: "ติดต่อฝ่ายสนับสนุนเพื่อขอคำแนะนำการส่งอีกครั้ง",
+    startKyc: "ยืนยัน KYC"
 };
