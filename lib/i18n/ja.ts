@@ -221,4 +221,13 @@ export const translations: Record<string, string> = {
     todayTransactions: "今日の取引",
     pendingApprovals: "承認待ち",
     greeting: "こんにちは",
+    kycRequiredTitle: "本人確認が必要です",
+    kycRequiredBody: "送金、カード、投資などの銀行サービスを利用するには、まずKYC本人確認を完了してください。",
+    kycRequiredAction: "本人確認を完了してすべての機能を利用可能にします。",
+    kycReviewTitle: "KYC審査中",
+    kycReviewBody: "提出された書類を審査中です。通常24〜48時間で完了します。承認後にお知らせします。",
+    kycRejectedTitle: "KYC審査不合格",
+    kycRejectedBody: "本人確認が承認されませんでした。コンシェルジュチームにお問い合わせください。",
+    kycRejectedAction: "再提出についてサポートにお問い合わせください。",
+    startKyc: "KYC本人確認"
 };
