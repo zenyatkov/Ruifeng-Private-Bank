@@ -237,4 +237,13 @@ export const translations: Record<string, string> = {
     privacySettings: "Privacy Settings", dataSharing: "Data Sharing with Partners",
     analyticsTracking: "Usage Analytics", biometricLogin: "Biometric Login",
     autoLock: "Auto-lock Timer", sessionTimeout: "Session Timeout",
+    kycRequiredTitle: "Identity Verification Required",
+    kycRequiredBody: "To access banking services like transfers, cards, and investments, you must complete KYC verification first.",
+    kycRequiredAction: "Complete your identity verification to unlock full access.",
+    kycReviewTitle: "KYC Under Review",
+    kycReviewBody: "Your documents are being reviewed. Verification typically takes 24–48 hours. You'll be notified once approved.",
+    kycRejectedTitle: "KYC Verification Rejected",
+    kycRejectedBody: "Your identity verification was not approved. Please contact our concierge team for assistance.",
+    kycRejectedAction: "Contact support for re-submission guidance.",
+    startKyc: "Complete KYC",
 };
