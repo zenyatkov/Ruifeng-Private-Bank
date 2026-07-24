@@ -4,6 +4,7 @@ import { loans, users } from "@/db/schema";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { PageHeader, Panel, StatusBadge } from "@/components/ui";
 import { LoanActions } from "@/components/admin/loan-actions";
+import { AdminDeleteButtonWrapper } from "@/components/admin/admin-delete-button-wrapper";
 
 export default async function AdminLoansPage() {
   const rows = await db
@@ -66,7 +67,10 @@ export default async function AdminLoansPage() {
                     <StatusBadge status={loan.status} />
                   </td>
                   <td>
-                    <LoanActions id={loan.id} status={loan.status} />
+                    <div className="flex items-center gap-2">
+                      <LoanActions id={loan.id} status={loan.status} />
+                      <AdminDeleteButtonWrapper type="loan" id={loan.id} />
+                    </div>
                   </td>
                 </tr>
               ))}
