@@ -4,6 +4,7 @@ import { accounts, users } from "@/db/schema";
 import { ACCOUNT_TYPE_LABELS, formatCurrency, formatDate } from "@/lib/utils";
 import { PageHeader, Panel, StatusBadge } from "@/components/ui";
 import { AccountAdminActions, CreateAccountAdminForm } from "@/components/admin/account-admin-controls";
+import { AdminDeleteButtonWrapper } from "@/components/admin/admin-delete-button-wrapper";
 
 export default async function AdminAccountsPage() {
   const rows = await db.select({
@@ -52,7 +53,12 @@ export default async function AdminAccountsPage() {
                   <td className="font-semibold">{formatCurrency(a.balance, a.currency)}</td>
                   <td><StatusBadge status={a.status} /></td>
                   <td className="text-xs">{formatDate(a.openedAt)}</td>
-                  <td><AccountAdminActions account={{ id: a.id, status: a.status }} /></td>
+                  <td>
+                    <div className="flex items-center gap-2">
+                      <AccountAdminActions account={{ id: a.id, status: a.status }} />
+                      <AdminDeleteButtonWrapper type="account" id={a.id} />
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
