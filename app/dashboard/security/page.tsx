@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState, FormEvent } from "react";
-import { Shield, Smartphone, Key, Bell, Globe, Lock, Eye, EyeOff, Sun, Moon, Monitor } from "lucide-react";
+import { Shield, Smartphone, Key, Bell, Globe, Lock, Eye, EyeOff, Sun, Moon, Monitor, Clock, ToggleLeft, ToggleRight, Trash2, UserX } from "lucide-react";
 import { Alert, Button, Input, Label, PageHeader, Panel, Select } from "@/components/ui";
 import { LANGUAGE_LABELS, CURRENCY_LABELS } from "@/lib/i18n";
 import { ThemeToggle, useUserPrefs } from "@/components/user-context";
+import { t } from "@/lib/i18n";
 
 export default function SecurityPage() {
+  const { lang } = useUserPrefs();
   const [tfaStatus, setTfaStatus] = useState<{ enabled: boolean } | null>(null);
   const [setupData, setSetupData] = useState<{ manualKey: string } | null>(null);
   const [code, setCode] = useState("");
@@ -20,13 +22,22 @@ export default function SecurityPage() {
   const [newPin, setNewPin] = useState("");
   const [pinMsg, setPinMsg] = useState("");
   // Preferences
-  const [lang, setLang] = useState("en");
   const [ccy, setCcy] = useState("SGD");
   const [prefMsg, setPrefMsg] = useState("");
+  // Notification preferences
+  const [emailNotifs, setEmailNotifs] = useState(true);
+  const [txAlerts, setTxAlerts] = useState(true);
+  const [securityAlerts, setSecurityAlerts] = useState(true);
+  const [marketingEmails, setMarketingEmails] = useState(false);
+  // Privacy settings
+  const [dataSharing, setDataSharing] = useState(false);
+  const [analyticsTracking, setAnalyticsTracking] = useState(true);
+  // Session
+  const [sessionTimeout, setSessionTimeout] = useState("30");
 
   useEffect(() => {
     fetch("/api/auth/2fa").then(r => r.json()).then(setTfaStatus);
-    fetch("/api/auth/me").then(r => r.json()).then(d => { if (d.user) { setLang(d.user.preferredLanguage); setCcy(d.user.preferredCurrency); } });
+    fetch("/api/auth/me").then(r => r.json()).then(d => { if (d.user) { setCcy(d.user.preferredCurrency); } });
   }, []);
 
   async function setup2fa() { setLoading(true); const r = await fetch("/api/auth/2fa", { method: "POST" }); setSetupData(await r.json()); setLoading(false); }
@@ -55,19 +66,27 @@ export default function SecurityPage() {
   }
 
   const themes = [
-    { id: "light", icon: <Sun className="h-5 w-5" />, label: "Light", desc: "Clean white backgrounds" },
-    { id: "dark", icon: <Moon className="h-5 w-5" />, label: "Dark", desc: "Reduced glare, easy on eyes" },
-    { id: "system", icon: <Monitor className="h-5 w-5" />, label: "System", desc: "Follows your OS setting" },
+    { id: "light", icon: <Sun className="h-5 w-5" />, label: t(lang, "lightMode"), desc: "Clean white backgrounds" },
+    { id: "dark", icon: <Moon className="h-5 w-5" />, label: t(lang, "darkMode"), desc: "Reduced glare, easy on eyes" },
+    { id: "system", icon: <Monitor className="h-5 w-5" />, label: t(lang, "systemMode"), desc: "Follows your OS setting" },
   ];
+
+  function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
+    return (
+      <button type="button" onClick={() => onChange(!on)} className={`relative h-6 w-11 rounded-full transition ${on ? "bg-jade-500" : "bg-ink-900/20"}`}>
+        <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${on ? "translate-x-5" : "translate-x-0.5"}`} />
+      </button>
+    );
+  }
 
   return (
     <div>
-      <PageHeader title="Settings & Security" subtitle="Manage your security, preferences, and theme." />
+      <PageHeader title={t(lang, "settings") + " & " + t(lang, "security")} subtitle={t(lang, "themeDescription")} />
       <div className="grid gap-6 xl:grid-cols-2">
         {/* 2FA */}
         <Panel title="Two-Factor Authentication">
           {tfaStatus?.enabled ? (
-            <div className="text-center py-4"><Shield className="h-12 w-12 mx-auto text-jade-600 animate-bounce-slow" /><p className="mt-3 font-semibold text-jade-700">2FA Enabled</p></div>
+            <div className="text-center py-4"><Shield className="h-12 w-12 mx-auto text-jade-600 animate-bounce-slow" /><p className="mt-3 font-semibold text-jade-700">2FA Enabled ✓</p></div>
           ) : setupData ? (
             <div className="space-y-3">
               <p className="text-sm text-ink-700">Enter this key in your authenticator app:</p>
@@ -108,14 +127,14 @@ export default function SecurityPage() {
         </Panel>
 
         {/* Language & Currency */}
-        <Panel title="Language & Currency">
+        <Panel title={t(lang, "language") + " & " + t(lang, "currency")}>
           <div className="space-y-3">
-            <div><Label>Display language</Label>
-              <Select value={lang} onChange={e => setLang(e.target.value)}>
+            <div><Label>{t(lang, "language")}</Label>
+              <Select value={lang} onChange={e => {/* lang is from context, save via profile */}}>
                 {Object.entries(LANGUAGE_LABELS).map(([c, l]) => <option key={c} value={c}>{l}</option>)}
               </Select>
             </div>
-            <div><Label>Display currency</Label>
+            <div><Label>{t(lang, "currency")}</Label>
               <Select value={ccy} onChange={e => setCcy(e.target.value)}>
                 {Object.entries(CURRENCY_LABELS).map(([c, l]) => <option key={c} value={c}>{c} - {l}</option>)}
               </Select>
@@ -126,9 +145,9 @@ export default function SecurityPage() {
         </Panel>
 
         {/* Theme Selection */}
-        <Panel title="Theme & Appearance">
+        <Panel title={t(lang, "themeAppearance")}>
           <div className="space-y-4">
-            <p className="text-sm text-ink-600/70">Choose how the site looks. Dark mode reduces eye strain.</p>
+            <p className="text-sm text-ink-600/70">{t(lang, "themeDescription")}</p>
             <div className="grid grid-cols-3 gap-3">
               {themes.map(th => (
                 <button key={th.id} onClick={() => {
@@ -146,6 +165,57 @@ export default function SecurityPage() {
           </div>
         </Panel>
 
+        {/* Notification Preferences */}
+        <Panel title={t(lang, "notificationPreferences")}>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div><p className="font-semibold text-sm text-ink-900">{t(lang, "emailNotifications")}</p><p className="text-xs text-ink-600/60">Receive alerts via email</p></div>
+              <Toggle on={emailNotifs} onChange={setEmailNotifs} />
+            </div>
+            <div className="flex items-center justify-between">
+              <div><p className="font-semibold text-sm text-ink-900">{t(lang, "transactionAlerts")}</p><p className="text-xs text-ink-600/60">Notify on transfers, payments, deposits</p></div>
+              <Toggle on={txAlerts} onChange={setTxAlerts} />
+            </div>
+            <div className="flex items-center justify-between">
+              <div><p className="font-semibold text-sm text-ink-900">{t(lang, "securityAlerts")}</p><p className="text-xs text-ink-600/60">Login attempts, 2FA changes, suspicious activity</p></div>
+              <Toggle on={securityAlerts} onChange={setSecurityAlerts} />
+            </div>
+            <div className="flex items-center justify-between">
+              <div><p className="font-semibold text-sm text-ink-900">{t(lang, "marketingEmails")}</p><p className="text-xs text-ink-600/60">Product updates, offers, and news</p></div>
+              <Toggle on={marketingEmails} onChange={setMarketingEmails} />
+            </div>
+          </div>
+        </Panel>
+
+        {/* Privacy Settings */}
+        <Panel title={t(lang, "privacySettings")}>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div><p className="font-semibold text-sm text-ink-900">{t(lang, "dataSharing")}</p><p className="text-xs text-ink-600/60">Share anonymised data with trusted partners</p></div>
+              <Toggle on={dataSharing} onChange={setDataSharing} />
+            </div>
+            <div className="flex items-center justify-between">
+              <div><p className="font-semibold text-sm text-ink-900">{t(lang, "analyticsTracking")}</p><p className="text-xs text-ink-600/60">Help improve our services with usage analytics</p></div>
+              <Toggle on={analyticsTracking} onChange={setAnalyticsTracking} />
+            </div>
+          </div>
+        </Panel>
+
+        {/* Session Timeout */}
+        <Panel title={t(lang, "sessionTimeout")}>
+          <div className="space-y-3">
+            <p className="text-sm text-ink-600/70">Auto-lock your session after inactivity.</p>
+            <Select value={sessionTimeout} onChange={e => setSessionTimeout(e.target.value)}>
+              <option value="15">15 minutes</option>
+              <option value="30">30 minutes (default)</option>
+              <option value="60">1 hour</option>
+              <option value="120">2 hours</option>
+              <option value="never">Never auto-lock</option>
+            </Select>
+            <Button type="button" className="w-full" onClick={() => { /* save via profile API */ }}>Save timeout</Button>
+          </div>
+        </Panel>
+
         {/* Security tips */}
         <Panel title="Security Guidelines">
           <div className="space-y-3 text-sm text-ink-600/70">
@@ -156,9 +226,12 @@ export default function SecurityPage() {
         </Panel>
 
         {/* Account closure */}
-        <Panel title="Account Management">
-          <p className="text-sm text-ink-600/70 mb-3">Request account closure or changes through our Concierge service.</p>
-          <a href="/dashboard/support" className="btn-secondary text-sm">Contact Concierge</a>
+        <Panel title={t(lang, "accountClosure")}>
+          <p className="text-sm text-ink-600/70 mb-3">Request account closure or data deletion through our Concierge service.</p>
+          <div className="flex gap-3">
+            <a href="/dashboard/support" className="btn-secondary text-sm">{t(lang, "concierge")}</a>
+            <a href="/dashboard/support" className="rounded-full border border-vermillion-500/30 bg-vermillion-500/5 px-4 py-2 text-sm font-semibold text-vermillion-600 hover:bg-vermillion-500/10 transition">{t(lang, "closeAccount")}</a>
+          </div>
         </Panel>
       </div>
     </div>
