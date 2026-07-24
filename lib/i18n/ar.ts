@@ -221,4 +221,13 @@ export const translations: Record<string, string> = {
     todayTransactions: "معاملات اليوم",
     pendingApprovals: "بانتظار الموافقة",
     greeting: "مرحبا",
+    kycRequiredTitle: "يتطلب التحقق من الهوية",
+    kycRequiredBody: "للوصول إلى الخدمات المصرفية مثل التحويلات والبطاقات والاستثمارات، يجب عليك إكمال التحقق من KYC.",
+    kycRequiredAction: "أكمل التحقق من الهوية لفتح جميع الميزات.",
+    kycReviewTitle: "KYC قيد المراجعة",
+    kycReviewBody: "يتم مراجعة مستنداتك. يستغرق التحقق عادةً 24-48 ساعة. سيتم إخطارك عند الموافقة.",
+    kycRejectedTitle: "KYC مرفوض",
+    kycRejectedBody: "لم يتم الموافقة على التحقق من هويتك. يرجى الاتصال بفريق الخدمة المميزة.",
+    kycRejectedAction: "اتصل بالدعم للحصول على إرشادات إعادة التقديم.",
+    startKyc: "أكمل KYC"
 };
