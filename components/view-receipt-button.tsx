@@ -25,7 +25,7 @@ export function ViewReceiptButton({ receiptData }: { receiptData: Record<string,
     );
   }
 
-  const entries = Object.entries(receiptData).filter(([, v]) => typeof v !== "object" && v !== "—" && v);
+  const entries = Object.entries(receiptData).filter(([, v]) => v != null && v !== "—" && v !== "" && typeof v !== "object");
 
   return (
     <div className="mt-3 rounded-2xl border border-ink-900/10 bg-white p-5 card-shadow animate-slide-in">
