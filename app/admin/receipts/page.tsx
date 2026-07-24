@@ -5,8 +5,13 @@ import { formatDateTime } from "@/lib/utils";
 import { PageHeader, Panel, EmptyState } from "@/components/ui";
 import { AdminReceiptView } from "@/components/admin/receipt-view";
 import { AdminDeleteButtonWrapper } from "@/components/admin/admin-delete-button-wrapper";
+import { getCurrentUser } from "@/lib/auth";
+import { t } from "@/lib/i18n";
+
 
 export default async function AdminReceiptsPage() {
+  const user = await getCurrentUser();
+  const lang = user?.preferredLanguage || "en";
   const rows = await db.select({
     id: receipts.id, type: receipts.type, data: receipts.data, createdAt: receipts.createdAt,
     userId: receipts.userId, firstName: users.firstName, lastName: users.lastName, email: users.email,
@@ -14,7 +19,7 @@ export default async function AdminReceiptsPage() {
 
   return (
     <div>
-      <PageHeader title="All Receipts" subtitle={`${rows.length} receipts`} />
+      <PageHeader title={t(lang, "adminAllReceipts") || "All Receipts"} subtitle={`${rows.length} receipts`} />
       <Panel>
         {rows.length === 0 ? <EmptyState title="No receipts" /> : (
           <div className="space-y-2">
