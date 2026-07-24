@@ -4,14 +4,19 @@ import { users } from "@/db/schema";
 import { formatDateTime } from "@/lib/utils";
 import { PageHeader, Panel, StatusBadge } from "@/components/ui";
 import { KycAdminActions, KycDownloadButton, KycDocumentDownload } from "@/components/admin/kyc-admin";
+import { getCurrentUser } from "@/lib/auth";
+import { t } from "@/lib/i18n";
+
 
 export default async function AdminKycPage() {
+  const user = await getCurrentUser();
+  const lang = user?.preferredLanguage || "en";
   const allClients = await db.select().from(users).where(eq(users.role, "client")).orderBy(desc(users.createdAt));
   const pendingKyc = allClients.filter(u => u.kycStatus === "pending" || u.kycStatus === "review");
 
   return (
     <div>
-      <PageHeader title="KYC Verification" subtitle={`${pendingKyc.length} pending review`} />
+      <PageHeader title={t(lang, "adminKycVerification") || "KYC Verification"} subtitle={`${pendingKyc.length} pending review`} />
 
       {pendingKyc.length > 0 && (
         <div className="mb-6">
