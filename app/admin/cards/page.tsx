@@ -4,8 +4,13 @@ import { cards, users } from "@/db/schema";
 import { PageHeader, Panel, StatusBadge } from "@/components/ui";
 import { AdminCardActions } from "@/components/admin/card-admin-actions";
 import { AdminDeleteButtonWrapper } from "@/components/admin/admin-delete-button-wrapper";
+import { getCurrentUser } from "@/lib/auth";
+import { t } from "@/lib/i18n";
+
 
 export default async function AdminCardsPage() {
+  const user = await getCurrentUser();
+  const lang = user?.preferredLanguage || "en";
   const rows = await db
     .select({
       id: cards.id, cardNumberMasked: cards.cardNumberMasked, cardholderName: cards.cardholderName,
@@ -19,7 +24,7 @@ export default async function AdminCardsPage() {
 
   return (
     <div>
-      <PageHeader title="Cards Management" subtitle="Approve, flag, delete cards." />
+      <PageHeader title={t(lang, "adminCardsManagement") || "Cards Management"} subtitle="Approve, flag, delete cards." />
       <Panel>
         <div className="table-wrap">
           <table className="data-table">
