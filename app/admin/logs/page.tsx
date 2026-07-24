@@ -3,8 +3,13 @@ import { db } from "@/db";
 import { adminLogs, users } from "@/db/schema";
 import { formatDateTime } from "@/lib/utils";
 import { EmptyState, PageHeader, Panel } from "@/components/ui";
+import { getCurrentUser } from "@/lib/auth";
+import { t } from "@/lib/i18n";
+
 
 export default async function AdminLogsPage() {
+  const user = await getCurrentUser();
+  const lang = user?.preferredLanguage || "en";
   const rows = await db
     .select({
       id: adminLogs.id,
@@ -24,7 +29,7 @@ export default async function AdminLogsPage() {
 
   return (
     <div>
-      <PageHeader title="Audit logs" subtitle="Immutable trail of privileged administrative actions." />
+      <PageHeader title={t(lang, "adminAuditLogs") || "Audit logs"} subtitle={t(lang, "adminAuditSub") || "Immutable trail of privileged administrative actions."} />
       <Panel>
         {rows.length === 0 ? (
           <EmptyState title="No audit events" description="Admin actions will appear here." />
