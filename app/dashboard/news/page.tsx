@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { RefreshCw, TrendingUp, Globe, ExternalLink } from "lucide-react";
+import { RefreshCw, TrendingUp, Globe, ExternalLink, Newspaper } from "lucide-react";
 import { PageHeader, Panel } from "@/components/ui";
 import { useUserPrefs } from "@/components/user-context";
 import { t } from "@/lib/i18n";
@@ -19,6 +19,7 @@ export default function NewsPage() {
   const [items, setItems] = useState<NewsItem[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [live, setLive] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState("");
 
   async function fetchNews() {
     setRefreshing(true);
@@ -28,6 +29,7 @@ export default function NewsPage() {
       if (data.news && data.news.length > 0) {
         setItems(data.news);
         setLive(data.live === true);
+        setLastUpdated(new Date().toLocaleTimeString());
       }
     } catch {
       // Keep existing items on fetch failure
@@ -38,11 +40,11 @@ export default function NewsPage() {
   // Initial fetch
   useEffect(() => { fetchNews(); }, []);
 
-  // Auto-refresh every 30 seconds for live feed, every 15 seconds for simulated
+  // Auto-refresh every 10 seconds
   useEffect(() => {
-    const interval = setInterval(fetchNews, live ? 30000 : 15000);
+    const interval = setInterval(fetchNews, 10000);
     return () => clearInterval(interval);
-  }, [live]);
+  }, []);
 
   const catColors: Record<string, string> = {
     Markets: "text-jade-600 bg-jade-500/10", FX: "text-sky-600 bg-sky-100",
@@ -57,53 +59,66 @@ export default function NewsPage() {
     <div>
       <PageHeader
         title={t(lang, "news")}
-        subtitle={live ? "Live Asia-Pacific financial news. Auto-refreshes every 30s." : "Asia-Pacific financial news. Auto-refreshes every 15s."}
+        subtitle={live ? "🔴 Live financial news · Auto-refreshes every 10s" : "Financial news · Auto-refreshes every 10s"}
         actions={
-          <div className="flex items-center gap-3">
-            <button
-              onClick={fetchNews}
-              className="flex items-center gap-2 text-xs text-ink-600/60 hover:text-jade-600 transition"
-              disabled={refreshing}
-            >
+          <div className="flex items-center gap-4">
+            <button onClick={fetchNews} className="flex items-center gap-2 rounded-full border border-ink-900/10 bg-white px-3 py-2 text-xs font-semibold text-ink-800 hover:bg-rice-50 transition" disabled={refreshing}>
               <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin text-jade-500" : ""}`} />
               Refresh
             </button>
-            <div className="flex items-center gap-2 text-xs text-ink-600/60">
-              {live && <span className="h-2 w-2 rounded-full bg-jade-500 animate-pulse-jade" />}
-              <span>{live ? "Live" : "Simulated"}</span>
+            <div className="flex items-center gap-2 text-xs">
+              {live && <span className="h-2.5 w-2.5 rounded-full bg-vermillion-500 animate-pulse-jade" />}
+              <span className="font-semibold text-ink-700">{live ? "🔴 Live Feed" : "Simulated"}</span>
+              {lastUpdated && <span className="text-ink-600/50">· Last: {lastUpdated}</span>}
             </div>
           </div>
         }
       />
+
+      {/* Featured headline */}
+      {items.length > 0 && (
+        <div className="mb-6 rounded-3xl bg-gradient-to-br from-ink-950 to-ink-900 p-6 text-rice-50 premium-card glow-jade">
+          <div className="flex items-center gap-2 mb-3">
+            <TrendingUp className="h-5 w-5 text-jade-300" />
+            <span className="text-xs font-semibold uppercase tracking-[0.16em] text-jade-300">Featured · {items[0].category}</span>
+            <span className="text-xs text-rice-200/50">{items[0].source}</span>
+          </div>
+          {items[0].url ? (
+            <a href={items[0].url} target="_blank" rel="noopener noreferrer" className="text-xl font-display font-semibold text-rice-50 hover:text-jade-300 transition">
+              {items[0].title} <ExternalLink className="h-4 w-4 inline ml-1 text-jade-300" />
+            </a>
+          ) : (
+            <p className="text-xl font-display font-semibold text-rice-50">{items[0].title}</p>
+          )}
+          <p className="mt-2 text-sm text-rice-200/60">{items[0].time}</p>
+        </div>
+      )}
+
       <Panel>
         {items.length === 0 ? (
-          <div className="py-8 text-center text-sm text-ink-600/50">Loading financial news...</div>
+          <div className="py-12 text-center">
+            <Newspaper className="h-12 w-12 mx-auto text-ink-600/30" />
+            <p className="mt-3 text-sm text-ink-600/50">Loading financial news...</p>
+          </div>
         ) : (
-          <div className="space-y-1">
-            {items.map((item, i) => (
-              <div
-                key={`${item.title}-${i}`}
-                className={`rounded-xl p-4 flex items-start gap-4 transition ${i === 0 ? "bg-jade-500/5 border border-jade-500/15" : "hover:bg-rice-50"}`}
+          <div className="space-y-2">
+            {items.slice(1).map((item, i) => (
+              <div key={`${item.title}-${i}`}
+                className="rounded-2xl border border-ink-900/5 bg-white p-4 flex items-start gap-4 transition hover-lift hover:border-jade-500/15"
               >
                 <div className="mt-1 shrink-0">
-                  {i === 0 ? <TrendingUp className="h-5 w-5 text-jade-600" /> : <Globe className="h-4 w-4 text-ink-600/30" />}
+                  <Globe className="h-4 w-4 text-ink-600/30" />
                 </div>
                 <div className="min-w-0 flex-1">
                   {item.url ? (
-                    <a
-                      href={item.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`text-sm font-semibold text-ink-900 hover:text-jade-600 transition ${i === 0 ? "text-base" : ""}`}
-                    >
-                      {item.title}
-                      <ExternalLink className="h-3 w-3 ml-1 inline text-ink-600/30" />
+                    <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-ink-900 hover:text-jade-600 transition">
+                      {item.title} <ExternalLink className="h-3 w-3 ml-1 inline text-ink-600/30" />
                     </a>
                   ) : (
-                    <p className={`text-sm font-semibold text-ink-900 ${i === 0 ? "text-base" : ""}`}>{item.title}</p>
+                    <p className="text-sm font-semibold text-ink-900">{item.title}</p>
                   )}
                   <div className="mt-1.5 flex items-center gap-2 flex-wrap">
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${catColors[item.category] || "text-ink-600 bg-ink-900/5"}`}>{item.category}</span>
+                    <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${catColors[item.category] || "text-ink-600 bg-ink-900/5"}`}>{item.category}</span>
                     <span className="text-xs text-ink-600/50">{item.source}</span>
                     <span className="text-xs text-ink-600/40">· {item.time}</span>
                   </div>
