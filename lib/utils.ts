@@ -99,6 +99,9 @@ export const ASIAN_COUNTRIES = [
   "Australia",
   "New Zealand",
   "United Arab Emirates",
+  "United States",
+  "Canada",
+  "United Kingdom",
 ] as const;
 
 export const ACCOUNT_TYPE_LABELS: Record<string, string> = {
