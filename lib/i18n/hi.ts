@@ -221,4 +221,13 @@ export const translations: Record<string, string> = {
     todayTransactions: "आज के लेनदेन",
     pendingApprovals: "स्वीकृति अपेक्षित",
     greeting: "नमस्कार",
+    kycRequiredTitle: "पहचान सत्यापन आवश्यक",
+    kycRequiredBody: "ट्रांसफर, कार्ड, और निवेश जैसी बैंकिंग सेवाओं का उपयोग करने के लिए, आपको पहले KYC सत्यापन पूरा करना होगा।",
+    kycRequiredAction: "पहचान सत्यापन पूरा करें और सभी सुविधाओं को अनलॉक करें।",
+    kycReviewTitle: "KYC समीक्षा में",
+    kycReviewBody: "आपके दस्तावेज़ समीक्षा में हैं। सत्यापन आमतौर पर 24-48 घंटे लेता है। स्वीकृति पर आपको सूचित किया जाएगा।",
+    kycRejectedTitle: "KYC सत्यापन अस्वीकृत",
+    kycRejectedBody: "आपकी पहचान सत्यापन स्वीकृत नहीं हुई। कृपया हमारी कॉन्सियर्ज टीम से संपर्क करें।",
+    kycRejectedAction: "पुनः प्रस्तुति के लिए समर्थन से संपर्क करें।",
+    startKyc: "KYC पूरा करें"
 };
