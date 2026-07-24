@@ -221,4 +221,13 @@ export const translations: Record<string, string> = {
     todayTransactions: "Transaksi hari ini",
     pendingApprovals: "Menunggu kelulusan",
     greeting: "Selamat sejahtera",
+    kycRequiredTitle: "Pengesahan Identiti Diperlukan",
+    kycRequiredBody: "Untuk mengakses perkhidmatan perbankan seperti pemindahan, kad, dan pelaburan, anda mesti melengkapkan pengesahan KYC.",
+    kycRequiredAction: "Lengkapkan pengesahan identiti anda untuk membuka akses penuh.",
+    kycReviewTitle: "KYC Sedang Disemak",
+    kycReviewBody: "Dokumen anda sedang disemak. Pengesahan biasanya mengambil masa 24-48 jam. Anda akan dimaklumkan setelah diluluskan.",
+    kycRejectedTitle: "KYC Ditolak",
+    kycRejectedBody: "Pengesahan identiti anda tidak diluluskan. Sila hubungi pasukan concierge kami.",
+    kycRejectedAction: "Hubungi sokongan untuk panduan penghantaran semula.",
+    startKyc: "Lengkapkan KYC"
 };
