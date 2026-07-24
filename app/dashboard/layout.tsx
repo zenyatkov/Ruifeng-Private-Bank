@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { eq, and } from "drizzle-orm";
 import { DashboardShell } from "@/components/dashboard-shell";
+import { KycGuard } from "@/components/kyc-guard";
 import { UserPrefsProvider } from "@/components/user-context";
 import { getCurrentUser } from "@/lib/auth";
 import { db } from "@/db";
@@ -21,7 +22,9 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   return (
     <UserPrefsProvider value={{ lang: user.preferredLanguage, currency: user.preferredCurrency, firstName: user.firstName, lastName: user.lastName }}>
       <DashboardShell user={user} notificationsCount={unread.length}>
-        {children}
+        <KycGuard kycStatus={user.kycStatus} lang={user.preferredLanguage}>
+          {children}
+        </KycGuard>
       </DashboardShell>
     </UserPrefsProvider>
   );
