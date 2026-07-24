@@ -167,9 +167,8 @@ export function CardDisplay({ card, accounts }: {
   );
 }
 
-export function CreditCardApplicationForm({ accounts }: { accounts: Array<{ id: number; nickname: string | null; accountNumber: string; currency: string }> }) {
+export function CreditCardApplicationForm() {
   const router = useRouter();
-  const [accountId, setAccountId] = useState(accounts[0]?.id?.toString() || "");
   const [cardArt, setCardArt] = useState("jade-dragon");
   const [creditLimit, setCreditLimit] = useState("10000");
   const [loading, setLoading] = useState(false);
@@ -177,25 +176,21 @@ export function CreditCardApplicationForm({ accounts }: { accounts: Array<{ id: 
 
   async function apply() {
     setLoading(true); setMessage("");
-    const res = await fetch("/api/cards", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ accountId: Number(accountId), type: "credit", cardArt, creditLimit }) });
+    // No accountId needed — credit card creates its own dedicated account
+    const res = await fetch("/api/cards", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "credit", cardArt, creditLimit }) });
     setLoading(false);
     if (!res.ok) { const d = await res.json(); setMessage(d.error || d.data?.error || "Failed"); return; }
-    setMessage("✅ Credit card application submitted!");
+    setMessage("✅ Credit card application submitted! Processing...");
     router.refresh();
   }
-
-  if (accounts.length === 0) return <p className="text-sm text-ink-600/70">Open an account first.</p>;
 
   return (
     <div className="space-y-4">
       <div className="rounded-2xl border border-jade-500/20 bg-gradient-to-br from-jade-500/10 to-emerald-500/5 p-4 text-center mb-2">
         <p className="text-lg font-display font-bold text-ink-900">✨ Credit Card</p>
-        <p className="text-xs text-ink-600/70 mt-1">Dedicated credit facility with flexible limits</p>
+        <p className="text-xs text-ink-600/70 mt-1">Dedicated credit facility — a separate credit account will be created upon approval.</p>
       </div>
-      <div><Label>Linked account</Label><Select value={accountId} onChange={(e) => setAccountId(e.target.value)}>
-        {accounts.map(a => <option key={a.id} value={a.id}>{a.nickname || a.accountNumber} ({a.currency})</option>)}
-      </Select></div>
-      <div><Label>Credit limit</Label>
+      <div><Label>Credit limit (SGD)</Label>
         <Select value={creditLimit} onChange={(e) => setCreditLimit(e.target.value)}>
           <option value="5000">5,000</option><option value="10000">10,000</option><option value="25000">25,000</option><option value="50000">50,000</option><option value="100000">100,000</option>
         </Select>
