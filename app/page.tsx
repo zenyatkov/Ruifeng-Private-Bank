@@ -1,14 +1,7 @@
 import Link from "next/link";
 import {
-  ArrowRight,
-  Building2,
-  Globe2,
-  Landmark,
-  LineChart,
-  Lock,
-  ShieldCheck,
-  Sparkles,
-  Wallet,
+  ArrowRight, Building2, Globe2, Landmark, LineChart, Lock,
+  ShieldCheck, Sparkles, Wallet, Bitcoin, BadgeJapaneseYen,
 } from "lucide-react";
 import { MarketingHeader } from "@/components/marketing-header";
 import { HeroSlideshow } from "@/components/hero-slideshow";
@@ -24,39 +17,18 @@ const hubs = [
   { city: "मुम्बई Mumbai", role: "South Asia Private Clients" },
   { city: "دبي Dubai", role: "Cross-border Family Office" },
   { city: "서울 Seoul", role: "Korea Private Banking" },
+  { city: "🇺🇸 New York", role: "Americas Coverage" },
+  { city: "🇬🇧 London", role: "European Wealth Desk" },
+  { city: "🇨🇦 Toronto", role: "North American Hub" },
 ];
 
 const services = [
-  {
-    title: "Multi-Currency Treasury",
-    description: "Hold, move, and optimise cash across 15+ Asian and G10 currencies with institutional FX spreads.",
-    icon: Wallet,
-  },
-  {
-    title: "Discretionary Wealth",
-    description: "Bespoke portfolios spanning Asia equities, private credit, sovereign bonds, and alternatives.",
-    icon: LineChart,
-  },
-  {
-    title: "Secured Lending",
-    description: "Lombard facilities, property financing, and liquidity lines against diversified collateral.",
-    icon: Landmark,
-  },
-  {
-    title: "Family Office Platform",
-    description: "Consolidated reporting, trust structuring support, and dedicated relationship coverage.",
-    icon: Building2,
-  },
-  {
-    title: "Private Cards & Lifestyle",
-    description: "World Elite metal cards, airport lounges, and 24/7 Asia concierge for every journey.",
-    icon: Sparkles,
-  },
-  {
-    title: "Bank-grade Security",
-    description: "Layered authentication, real-time monitoring, and compliance across MAS, HKMA, and more.",
-    icon: ShieldCheck,
-  },
+  { title: "Multi-Currency Treasury", description: "Hold, move, and optimise cash across 18 currencies — SGD, HKD, JPY, KRW, CNY, INR, USD, GBP, EUR, CAD and more — with institutional FX spreads.", icon: Wallet },
+  { title: "Discretionary Wealth", description: "Bespoke portfolios spanning Asia equities, private credit, sovereign bonds, and alternatives.", icon: LineChart },
+  { title: "Crypto Payments & Settlement", description: "Fund and settle with BTC, ETH, USDT, USDC. Zero FX friction, instant settlement, institutional-grade custody.", icon: Bitcoin },
+  { title: "Low-Tax Optimisation", description: "Capital gains at 0% in Singapore, Hong Kong, UAE. Tax-aware structuring for Asian principal families.", icon: BadgeJapaneseYen },
+  { title: "Secured Lending", description: "Lombard facilities, property financing, and liquidity lines against diversified collateral.", icon: Landmark },
+  { title: "Bank-grade Security", description: "Layered authentication, real-time monitoring, and compliance across MAS, FCA, SEC, HKMA.", icon: ShieldCheck },
 ];
 
 export default async function HomePage() {
@@ -73,7 +45,7 @@ export default async function HomePage() {
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-jade-500/30 bg-white/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-jade-300">
               <Globe2 className="h-3.5 w-3.5" />
-              亚洲全境服务 · Serving all of Asia
+              亚洲全境服务 · 18 Markets · Crypto · Low Tax
             </div>
             <h1 className="mt-6 font-display text-4xl font-semibold leading-[1.08] tracking-tight md:text-6xl lg:text-7xl">
               <span className="jade-text">瑞峯</span>{" "}
@@ -81,13 +53,19 @@ export default async function HomePage() {
               <span className="vermillion-text">Asia&apos;s stewards of wealth</span>
             </h1>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-rice-200/75 md:text-lg">
-              瑞峯 RuiFeng Private Bank unites multi-currency banking, investment craftsmanship, and white-glove concierge
-              across Singapore, Hong Kong, Tokyo, Mumbai, Seoul, and beyond — built for families who move markets.
+              瑞峯 RuiFeng Private Bank unites multi-currency banking, crypto payments, investment craftsmanship, and white-glove concierge
+              across 18 markets — Singapore, Hong Kong, Tokyo, Mumbai, Seoul, London, New York, Toronto, Dubai, and beyond — built for families who move markets.
             </p>
+            {/* Fintech badges */}
+            <div className="mt-6 flex flex-wrap gap-2">
+              <span className="rounded-full bg-jade-500/15 border border-jade-500/20 px-3 py-1 text-[10px] font-semibold text-jade-300">🪙 Crypto Payments</span>
+              <span className="rounded-full bg-bronze-400/15 border border-bronze-500/20 px-3 py-1 text-[10px] font-semibold text-bronze-300">📊 0% Capital Gains Tax</span>
+              <span className="rounded-full bg-rice-200/10 border border-rice-200/10 px-3 py-1 text-[10px] font-semibold text-rice-200/80">🔒 256-bit SSL</span>
+              <span className="rounded-full bg-vermillion-500/10 border border-vermillion-500/20 px-3 py-1 text-[10px] font-semibold text-vermillion-400">🌍 18 Markets</span>
+            </div>
             <div className="mt-8 flex flex-wrap gap-4">
               <Link href="/register" className="btn-primary">
-                Begin onboarding
-                <ArrowRight className="h-4 w-4" />
+                Begin onboarding <ArrowRight className="h-4 w-4" />
               </Link>
               <Link href="/login" className="rounded-full border border-rice-200/20 px-6 py-3 text-sm font-semibold text-rice-50 hover:bg-white/5">
                 Client login
@@ -95,8 +73,8 @@ export default async function HomePage() {
             </div>
             <div className="mt-12 grid grid-cols-3 gap-6 border-t border-white/10 pt-8">
               {[
-                ["$48B+", "Client assets advised"],
-                ["15", "Markets covered"],
+                ["SGD 48B+", "Client assets advised"],
+                ["18", "Markets covered"],
                 ["24/7", "Concierge & dealing"],
               ].map(([value, label]) => (
                 <div key={label}>
@@ -107,7 +85,7 @@ export default async function HomePage() {
             </div>
           </div>
 
-          {/* Wealth card */}
+          {/* Wealth card — SGD, increased */}
           <div className="relative">
             <div className="premium-card glow-jade rounded-[2rem] p-6 md:p-8">
               <div className="flex items-center justify-between">
@@ -115,13 +93,13 @@ export default async function HomePage() {
                 <Lock className="h-4 w-4 text-jade-300" />
               </div>
               <p className="mt-6 text-sm text-rice-200/60">Consolidated Asia book</p>
-              <p className="mt-2 font-display text-4xl text-rice-50 md:text-5xl">USD 4,284,450</p>
-              <p className="mt-2 text-sm text-jade-400">+6.4% MTD performance</p>
+              <p className="mt-2 font-display text-4xl text-rice-50 md:text-5xl">SGD 64,284,450</p>
+              <p className="mt-2 text-sm text-jade-400">+8.4% MTD performance · SGD base currency</p>
               <div className="mt-8 space-y-3">
                 {[
-                  ["Private Wealth USD", "2,845,000", "USD"],
-                  ["SGD Liquidity", "920,450", "SGD"],
-                  ["Asia Growth Fund", "609,375", "USD"],
+                  ["Private Wealth SGD", "42,845,000", "SGD"],
+                  ["SGD Liquidity", "13,809,450", "SGD"],
+                  ["Asia Growth Fund", "8,630,000", "SGD"],
                 ].map(([name, amount, ccy]) => (
                   <div key={name} className="flex items-center justify-between rounded-2xl bg-white/5 px-4 py-3">
                     <div>
@@ -134,27 +112,27 @@ export default async function HomePage() {
               </div>
               <div className="mt-6 flex items-center gap-3 rounded-2xl border border-jade-500/20 bg-jade-500/10 px-4 py-3 text-xs text-jade-300">
                 <span className="seal-mark">峯</span>
-                <span>Relationship Manager: Hiroshi Tanaka · Tokyo & Singapore desk</span>
+                <span>Relationship Manager: Hiroshi Tanaka · Tokyo & Singapore desk · Crypto & Low-Tax Optimised</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Services */}
+      {/* Services — luxurious */}
       <section id="services" className="bg-rice-50 px-6 py-24 text-ink-900">
         <div className="mx-auto max-w-7xl">
           <div className="max-w-2xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-jade-600">服务 Capabilities</p>
             <h2 className="mt-3 font-display text-3xl font-semibold md:text-5xl">Every instrument of modern private banking</h2>
             <p className="mt-4 text-ink-600/80">
-              From same-day SWIFT and multi-currency cash to discretionary mandates and secured credit — one seamless
-              platform for principal families across Asia.
+              From same-day SWIFT and multi-currency cash to crypto settlement, discretionary mandates, and secured credit —
+              one seamless platform for principal families across Asia and the world.
             </p>
           </div>
           <div className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {services.map((service) => (
-              <div key={service.title} className="card-shadow rounded-3xl border border-ink-900/5 bg-white p-6 transition hover:border-jade-500/20 hover:shadow-jade-500/5">
+              <div key={service.title} className="card-shadow rounded-3xl border border-ink-900/5 bg-white p-6 transition hover:border-jade-500/20 hover:shadow-jade-500/5 hover-lift">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-ink-900 text-jade-300">
                   <service.icon className="h-5 w-5" />
                 </div>
@@ -171,16 +149,16 @@ export default async function HomePage() {
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-jade-300">亚洲网络 Regional footprint</p>
-              <h2 className="mt-3 font-display text-3xl font-semibold md:text-5xl">Anchored in Asia&apos;s financial capitals</h2>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-jade-300">全球网络 Global footprint</p>
+              <h2 className="mt-3 font-display text-3xl font-semibold md:text-5xl">Anchored in Asia, present worldwide</h2>
             </div>
             <p className="max-w-md text-sm text-rice-200/70">
-              Local market expertise with cross-border custody, tax-aware structuring guidance, and multilingual coverage teams.
+              Local market expertise with cross-border custody, tax-aware structuring guidance, crypto settlement, and multilingual coverage teams.
             </p>
           </div>
           <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {hubs.map((hub) => (
-              <div key={hub.city} className="glass-card rounded-3xl p-6 transition hover:border-jade-500/30">
+              <div key={hub.city} className="glass-card rounded-3xl p-6 transition hover:border-jade-500/30 hover-lift">
                 <p className="font-display text-2xl text-rice-50">{hub.city}</p>
                 <p className="mt-2 text-sm text-jade-300">{hub.role}</p>
               </div>
@@ -196,14 +174,16 @@ export default async function HomePage() {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-jade-600">投資哲学 Investment philosophy</p>
             <h2 className="mt-3 font-display text-3xl font-semibold md:text-5xl">Patient capital. Asian insight. Global access.</h2>
             <p className="mt-5 text-ink-600/80">
-              Our CIO desk blends on-the-ground research across ASEAN, Greater China, India, Japan, and Korea with disciplined
+              Our CIO desk blends on-the-ground research across ASEAN, Greater China, India, Japan, Korea, Americas, and Europe with disciplined
               risk frameworks — so your balance sheet works as hard as your enterprise.
             </p>
             <ul className="mt-8 space-y-4 text-sm">
               {[
                 "Direct Asia equity and ETF access with transparent custody",
+                "Crypto settlement — BTC, ETH, USDT with institutional custody",
+                "0% capital gains tax in Singapore, Hong Kong, and UAE jurisdictions",
+                "FX overlay and multi-currency treasury optimisation (18 currencies)",
                 "Private credit and alternatives reserved for private clients",
-                "FX overlay and multi-currency treasury optimisation",
                 "Real-time consolidated reporting in your client portal",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-3">
@@ -218,9 +198,9 @@ export default async function HomePage() {
               { label: "Asia Growth Mandate", value: "+18.4%", note: "3Y annualised" },
               { label: "SGD Bond Sleeve", value: "4.1%", note: "Yield to maturity" },
               { label: "Private Credit", value: "9.6%", note: "Target net IRR" },
-              { label: "Gold Overlay", value: "+12.2%", note: "YTD contribution" },
+              { label: "Crypto Overlay", value: "+24.2%", note: "YTD BTC + ETH" },
             ].map((card) => (
-              <div key={card.label} className="rounded-3xl bg-ink-950 p-6 text-rice-50 glow-jade transition hover:border-jade-500/20">
+              <div key={card.label} className="rounded-3xl bg-ink-950 p-6 text-rice-50 glow-jade transition hover:border-jade-500/20 hover-lift">
                 <p className="text-xs uppercase tracking-[0.16em] text-jade-300">{card.label}</p>
                 <p className="mt-4 font-display text-3xl text-jade-300">{card.value}</p>
                 <p className="mt-2 text-sm text-rice-200/60">{card.note}</p>
@@ -241,17 +221,12 @@ export default async function HomePage() {
               </div>
               <h2 className="mt-3 font-display text-3xl font-semibold md:text-5xl">Experience banking without friction</h2>
               <p className="mt-4 max-w-2xl text-rice-200/75">
-                Open a Private, Priority, Prestige, or Ultra High Net Worth relationship. Your dedicated manager,
-                digital vault, and Asia desk are ready.
+                Open a Private, Priority, Prestige, or Ultra High Net Worth relationship. Crypto-friendly, low-tax, and 24/7 concierge — your dedicated manager and Asia desk are ready.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Link href="/register" className="btn-primary">
-                Request access
-              </Link>
-              <Link href="/login" className="rounded-full border border-rice-200/20 px-6 py-3 text-sm font-semibold">
-                Existing client
-              </Link>
+              <Link href="/register" className="btn-primary">Request access</Link>
+              <Link href="/login" className="rounded-full border border-rice-200/20 px-6 py-3 text-sm font-semibold">Existing client</Link>
             </div>
           </div>
         </div>
@@ -262,7 +237,7 @@ export default async function HomePage() {
         <div className="mx-auto flex max-w-7xl flex-col gap-8 md:flex-row md:items-center md:justify-between">
           <Logo light />
           <p className="max-w-xl text-sm text-rice-200/50">
-            瑞峯 RuiFeng Private Bank Ltd is regulated by the Monetary Authority of Singapore (MAS). Licensed for private banking and wealth management across Asia Pacific. Member of the Deposit Insurance Scheme. 瑞峯意即吉祥之巔。
+            瑞峯 RuiFeng Private Bank Ltd is regulated by MAS, FCA, SEC. Licensed for private banking and wealth management across Asia Pacific, Americas, and Europe. Crypto settlement services available in select jurisdictions. 0% capital gains tax in Singapore, Hong Kong, UAE.
           </p>
           <div className="text-sm text-rice-200/60">© {new Date().getFullYear()} 瑞峯 RuiFeng Private Bank</div>
         </div>
