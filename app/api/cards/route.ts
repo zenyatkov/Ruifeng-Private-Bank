@@ -93,7 +93,39 @@ export const POST = createValidatedApiHandler(
       throw error === "Forbidden" ? new AuthorizationError() : new AuthenticationError();
     }
 
-    const [account] = await db.select().from(accounts).where(eq(accounts.id, data.accountId)).limit(1);
+    // For credit cards: create a dedicated credit account (not linked to personal accounts)
+    // For debit/platinum cards: require an accountId
+    let accountId = data.accountId;
+    let account;
+
+    if (data.type === "credit") {
+      if (!accountId) {
+        // Create a dedicated credit card account for the user
+        const [newAcct] = await db.insert(accounts).values({
+          userId: user.id,
+          type: "checking",
+          currency: "SGD",
+          nickname: `Credit Card Account`,
+          balance: "0",
+          availableBalance: "0",
+          status: "active",
+          interestRate: "0",
+          iban: `SGRF${String(user.id).padStart(6, "0")}${String(Date.now()).slice(-6)}`,
+          accountNumber: `RFCC${String(Math.floor(100000 + Math.random() * 900000))}`,
+        }).returning();
+        accountId = newAcct.id;
+        account = newAcct;
+      } else {
+        [account] = await db.select().from(accounts).where(eq(accounts.id, accountId)).limit(1);
+      }
+    } else {
+      // Debit/platinum require a linked personal account
+      if (!accountId) {
+        throw new ValidationError("Account ID is required for debit/platinum cards");
+      }
+      [account] = await db.select().from(accounts).where(eq(accounts.id, accountId)).limit(1);
+    }
+
     if (!account) {
       throw new NotFoundError("Account not found");
     }
@@ -102,12 +134,21 @@ export const POST = createValidatedApiHandler(
       throw new AuthorizationError("Account does not belong to you");
     }
 
+    // Check: users can only have one credit card at a time
+    if (data.type === "credit") {
+      const existingCreditCards = await db.select().from(cards).where(eq(cards.userId, user.id));
+      const activeOrPending = existingCreditCards.filter(c => c.type === "credit" && ["active", "pending"].includes(c.status));
+      if (activeOrPending.length > 0) {
+        throw new ValidationError("You cannot apply for multiple credit cards at once. You already have a pending or active credit card.");
+      }
+    }
+
     const now = new Date();
     const [card] = await db
       .insert(cards)
       .values({
-        userId: account.userId,
-        accountId: account.id,
+        userId: user.id,
+        accountId: accountId,
         cardNumberMasked: maskCardNumber(),
         cardholderName: `${user.firstName} ${user.lastName}`.toUpperCase(),
         type: data.type,
