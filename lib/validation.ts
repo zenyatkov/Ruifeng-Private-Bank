@@ -143,7 +143,7 @@ export const payBillSchema = z.object({
 
 // Card schemas
 export const createCardSchema = z.object({
-  accountId: z.number().int().positive(),
+  accountId: z.number().int().positive().optional(),
   type: z.enum(["debit", "credit", "platinum", "black"]).default("debit"),
   cardArt: z.string().optional().default("jade-dragon"),
   creditLimit: z.string().optional(),
