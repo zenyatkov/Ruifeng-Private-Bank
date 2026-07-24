@@ -4,6 +4,7 @@ import { supportTickets, users } from "@/db/schema";
 import { formatDateTime } from "@/lib/utils";
 import { PageHeader, Panel, StatusBadge } from "@/components/ui";
 import { TicketAdminControls } from "@/components/admin/ticket-admin-controls";
+import { AdminDeleteButtonWrapper } from "@/components/admin/admin-delete-button-wrapper";
 
 export default async function AdminTicketsPage() {
   const rows = await db
@@ -42,9 +43,10 @@ export default async function AdminTicketsPage() {
                       {ticket.category} · {formatDateTime(ticket.createdAt)}
                     </p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-center">
                     <StatusBadge status={ticket.priority} />
                     <StatusBadge status={ticket.status} />
+                    <AdminDeleteButtonWrapper type="ticket" id={ticket.id} />
                   </div>
                 </div>
                 <p className="mt-4 text-sm text-ink-800">{ticket.message}</p>
