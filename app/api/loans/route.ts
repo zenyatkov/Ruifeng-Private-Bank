@@ -125,7 +125,7 @@ export async function PATCH(request: NextRequest) {
       updatedAt: new Date(),
     };
 
-    // When approved → set to active, set dates, and CREDIT the disbursement account
+      // When approved → set to active, set dates, and CREDIT the disbursement account
     if (newStatus === "approved" || newStatus === "active") {
       updates.status = "active";
       updates.startDate = new Date();
@@ -133,30 +133,51 @@ export async function PATCH(request: NextRequest) {
       end.setMonth(end.getMonth() + existing.termMonths);
       updates.endDate = end;
 
-      // Create a dedicated loan account and credit funds
-      const loanAcctNum = `LN${existing.loanNumber.replace(/\D/g, "")}`;
-      const [loanAccount] = await db
-        .insert(accounts)
-        .values({
-          userId: existing.userId,
-          accountNumber: loanAcctNum,
-          iban: `SG89RFLN${loanAcctNum}`,
-          type: "checking",
-          currency: existing.currency,
-          balance: existing.principal,
-          availableBalance: existing.principal,
-          status: "active",
-          nickname: `Loan: ${existing.productName}`,
-          interestRate: existing.interestRate,
-        })
-        .returning();
+      // Use or create a single dedicated loan disbursement account per user
+      // (don't create multiple accounts for multiple loans)
+      const existingLoanAcct = await db.select().from(accounts).where(
+        eq(accounts.userId, existing.userId)
+      ).limit(100);
+      const dedicatedLoanAccount = existingLoanAcct.find(
+        a => a.nickname === "Loan Disbursement" && a.status === "active" && a.type === "checking" && a.currency === existing.currency
+      );
 
-      // Link loan to this new account
-      await db.update(loans).set({ accountId: loanAccount.id }).where(eq(loans.id, id));
+      let loanAccountId: number;
+      if (dedicatedLoanAccount) {
+        // Reuse existing loan disbursement account — add principal to balance
+        loanAccountId = dedicatedLoanAccount.id;
+        const newBal = (parseFloat(dedicatedLoanAccount.balance) + parseFloat(existing.principal)).toFixed(2);
+        const newAvail = (parseFloat(dedicatedLoanAccount.availableBalance) + parseFloat(existing.principal)).toFixed(2);
+        await db.update(accounts).set({
+          balance: newBal, availableBalance: newAvail, updatedAt: new Date(),
+        }).where(eq(accounts.id, dedicatedLoanAccount.id));
+      } else {
+        // Create a single dedicated loan disbursement account
+        const loanAcctNum = `LND${existing.loanNumber.replace(/\D/g, "")}`;
+        const [newAcct] = await db
+          .insert(accounts)
+          .values({
+            userId: existing.userId,
+            accountNumber: loanAcctNum,
+            iban: `SG89RFLN${loanAcctNum}`,
+            type: "checking",
+            currency: existing.currency,
+            balance: existing.principal,
+            availableBalance: existing.principal,
+            status: "active",
+            nickname: "Loan Disbursement",
+            interestRate: "0",
+          })
+          .returning();
+        loanAccountId = newAcct.id;
+      }
 
-      // Record disbursement
+      // Link loan to this account
+      await db.update(loans).set({ accountId: loanAccountId }).where(eq(loans.id, id));
+
+      // Record disbursement transaction
       await db.insert(transactions).values({
-        accountId: loanAccount.id,
+        accountId: loanAccountId,
         type: "loan_disbursement",
         status: "completed",
         amount: existing.principal,
