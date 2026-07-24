@@ -221,4 +221,13 @@ export const translations: Record<string, string> = {
     todayTransactions: "今日交易",
     pendingApprovals: "待審批",
     greeting: "您好",
+    kycRequiredTitle: "需要身分驗證",
+    kycRequiredBody: "要使用轉帳、卡片和投資等銀行服務，您必須先完成KYC驗證。",
+    kycRequiredAction: "完成身分驗證即可解鎖全部功能。",
+    kycReviewTitle: "KYC審核中",
+    kycReviewBody: "您的文件正在審核中，通常需要24-48小時。核准後會通知您。",
+    kycRejectedTitle: "KYC驗證被拒絕",
+    kycRejectedBody: "您的身分驗證未通過。請聯繫我們的貴賓服務團隊獲取幫助。",
+    kycRejectedAction: "聯繫客服獲取重新提交指引。",
+    startKyc: "完成KYC驗證"
 };
