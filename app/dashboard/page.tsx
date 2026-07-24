@@ -104,19 +104,19 @@ export default async function DashboardPage() {
 
       {/* ── Stat cards row ── */}
       <div className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-2xl border border-ink-900/5 bg-white p-5 hover-lift transition">
+        <div className="stat-luxury rounded-2xl p-5">
           <p className="text-xs uppercase tracking-[0.14em] text-ink-600/50 font-semibold">{t(lang, "cashBalances")}</p>
           <p className="mt-2 font-display text-2xl font-bold text-ink-900">{formatCurrency(totalCash, ccy)}</p>
           <p className="mt-1 text-xs text-ink-600/60">{userAccounts.length} {t(lang, "accounts")} · {userCards.length} {t(lang, "cards")}</p>
         </div>
-        <div className="rounded-2xl border border-ink-900/5 bg-white p-5 hover-lift transition">
+        <div className="stat-luxury rounded-2xl p-5">
           <p className="text-xs uppercase tracking-[0.14em] text-ink-600/50 font-semibold">{t(lang, "investments")}</p>
           <p className="mt-2 font-display text-2xl font-bold text-ink-900">{formatCurrency(investValue, ccy)}</p>
           <p className={`mt-1 text-xs font-semibold ${investPnl >= 0 ? "text-jade-600" : "text-vermillion-500"}`}>
             P&L: {investPnl >= 0 ? "+" : ""}{formatCurrency(investPnl, ccy)}
           </p>
         </div>
-        <div className="rounded-2xl border border-ink-900/5 bg-white p-5 hover-lift transition">
+        <div className="stat-luxury rounded-2xl p-5">
           <p className="text-xs uppercase tracking-[0.14em] text-ink-600/50 font-semibold">{t(lang, "activeLoans")}</p>
           <p className="mt-2 font-display text-2xl font-bold text-ink-900">{formatCurrency(loanOutstanding, ccy)}</p>
           <p className="mt-1 text-xs text-ink-600/60">{userLoans.filter(l => l.status === "active").length} active facilities</p>
