@@ -2,10 +2,12 @@
 
 import { FormEvent, useState, useRef, useEffect } from "react";
 import { Bot, Send, X, MessageCircle } from "lucide-react";
+import { useUserPrefs } from "@/components/user-context";
 
 type Message = { role: "user" | "bot"; text: string; time: string };
 
 export function AiChatWidget() {
+  const { lang } = useUserPrefs();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     { role: "bot", text: "Welcome to 瑞峯 RuiFeng AI Assistant! Ask me about transfers, cards, loans, investments, FX, bills, crypto, or anything else.", time: new Date().toLocaleTimeString() },
@@ -26,7 +28,7 @@ export function AiChatWidget() {
     try {
       const res = await fetch("/api/chat", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({ message: input, lang }),
       });
       const data = await res.json();
       setMessages(prev => [...prev, { role: "bot", text: data.reply || "I couldn't process that.", time: new Date().toLocaleTimeString() }]);
