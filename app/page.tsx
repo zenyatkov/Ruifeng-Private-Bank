@@ -119,6 +119,57 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ── Promotional Ad Video Section ── */}
+      <section id="ad-video" className="bg-ink-950 px-6 py-24">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end mb-12">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-jade-300">瑞峯 RuiFeng · Digital Banking</p>
+              <h2 className="mt-3 font-display text-3xl font-semibold md:text-5xl text-rice-50">Experience the future of private banking</h2>
+            </div>
+            <p className="max-w-md text-sm text-rice-200/70">A seamless fusion of tradition and innovation — watch how RuiFeng redefines wealth management for Asia&apos;s next generation.</p>
+          </div>
+          {/* Animated ad video placeholder */}
+          <div className="relative rounded-[2rem] overflow-hidden premium-card-glow" style={{ minHeight: '420px' }}>
+            {/* Animated background layers */}
+            <div className="absolute inset-0 bg-gradient-to-br from-jade-900 via-ink-950 to-emerald-900" />
+            <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 30% 50%, rgba(22,163,74,0.3) 0%, transparent 60%), radial-gradient(ellipse at 70% 80%, rgba(217,119,6,0.15) 0%, transparent 50%)' }} />
+            {/* Animated ticker line */}
+            <div className="absolute top-0 left-0 right-0 overflow-hidden h-16 bg-gradient-to-b from-ink-950/90 to-transparent">
+              <div className="flex items-center gap-8 animate-slide-in whitespace-nowrap py-4 px-6 text-jade-300/50 text-xs font-mono tracking-wider">
+                <span>SGD/USD 1.3425 ▲</span><span>HKD/JPY 15.82 ▼</span><span>BTC 68,420 ▲</span><span>ETH 3,845 ▲</span><span>USDT 1.00 ─</span><span>S&P 500 5,821 ▲</span><span>Nikkei 38,420 ▲</span><span>HSI 20,156 ▼</span><span>INR/USD 0.012 ▲</span><span>KRW/USD 0.00073 ─</span>
+              </div>
+            </div>
+            {/* Central content */}
+            <div className="relative z-10 flex flex-col items-center justify-center text-center px-8 py-20" style={{ minHeight: '420px' }}>
+              <div className="seal-mark text-6xl mb-6 animate-bounce-slow">峯</div>
+              <h3 className="font-display text-3xl md:text-4xl font-semibold text-rice-50 mb-4">瑞峯 Private Banking</h3>
+              <p className="text-rice-200/70 text-lg max-w-xl mb-8">Multi-currency · Crypto settlement · 0% capital gains · 18 markets · 24/7 concierge</p>
+              {/* Animated feature tiles */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-2xl w-full">
+                {[
+                  { icon: "🪙", label: "Crypto", value: "BTC·ETH·USDT" },
+                  { icon: "📊", label: "Markets", value: "18 Countries" },
+                  { icon: "🔒", label: "Security", value: "256-bit SSL" },
+                  { icon: "🏦", label: "Tax", value: "0% Capital Gains" },
+                ].map((item, i) => (
+                  <div key={item.label} className="rounded-2xl border border-jade-500/20 bg-white/5 px-4 py-3 animate-fade-in" style={{ animationDelay: `${i * 200}ms` }}>
+                    <p className="text-2xl mb-1">{item.icon}</p>
+                    <p className="text-xs font-semibold text-jade-300">{item.label}</p>
+                    <p className="text-[10px] text-rice-200/50">{item.value}</p>
+                  </div>
+                ))}
+              </div>
+              <Link href="/register" className="mt-8 btn-primary animate-fade-in" style={{ animationDelay: '800ms' }}>
+                Start your journey <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+            {/* Bottom gradient fade */}
+            <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-ink-950 to-transparent" />
+          </div>
+        </div>
+      </section>
+
       {/* Services — luxurious */}
       <section id="services" className="bg-rice-50 px-6 py-24 text-ink-900">
         <div className="mx-auto max-w-7xl">
