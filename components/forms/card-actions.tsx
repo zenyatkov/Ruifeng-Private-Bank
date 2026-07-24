@@ -172,16 +172,36 @@ export function CreditCardApplicationForm() {
   const [cardArt, setCardArt] = useState("jade-dragon");
   const [creditLimit, setCreditLimit] = useState("10000");
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [message, setMessage] = useState("");
 
   async function apply() {
     setLoading(true); setMessage("");
-    // No accountId needed — credit card creates its own dedicated account
     const res = await fetch("/api/cards", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "credit", cardArt, creditLimit }) });
+    const data = await res.json();
     setLoading(false);
-    if (!res.ok) { const d = await res.json(); setMessage(d.error || d.data?.error || "Failed"); return; }
-    setMessage("✅ Credit card application submitted! Processing...");
+    if (!res.ok) { setMessage(data.error || data.data?.error || "Failed"); return; }
+    // Auto-close form: show submitted state
+    setSubmitted(true);
     router.refresh();
+  }
+
+  // After submission — show processing spinner (form auto-closed)
+  if (submitted) {
+    return (
+      <div className="flex flex-col items-center justify-center py-8 animate-fade-in">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-jade-500/10 animate-bounce-slow">
+          <Lock className="h-8 w-8 text-jade-600" />
+        </div>
+        <p className="mt-4 font-display text-lg font-semibold text-ink-900">✅ Application submitted!</p>
+        <p className="mt-2 text-sm text-ink-600/70">Your credit card is being processed. You'll be notified upon approval.</p>
+        <div className="mt-4 flex gap-1">
+          <span className="h-2 w-8 rounded-full bg-jade-500" />
+          <span className="h-2 w-6 rounded-full bg-jade-400 progress-animate" />
+          <span className="h-2 w-6 rounded-full bg-ink-900/10" />
+        </div>
+      </div>
+    );
   }
 
   return (
