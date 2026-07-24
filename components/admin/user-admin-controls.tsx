@@ -177,6 +177,49 @@ export function UserRowActions({
       >
         {user.isActive ? "Deactivate" : "Activate"}
       </Button>
+      <DeleteUserButton userId={user.id} userEmail={""} />
     </div>
+  );
+}
+
+export function DeleteUserButton({ userId, userEmail }: { userId: number; userEmail: string }) {
+  const router = useRouter();
+  const [confirming, setConfirming] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  async function doDelete() {
+    setDeleting(true);
+    const res = await fetch("/api/admin/users/delete", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId }),
+    });
+    setDeleting(false);
+    if (res.ok) {
+      setConfirming(false);
+      router.refresh();
+    }
+  }
+
+  return (
+    <>
+      <button type="button" onClick={() => setConfirming(true)} className="px-3 py-1.5 text-xs rounded-full border border-vermillion-500/30 bg-vermillion-500/5 text-vermillion-600 font-semibold hover:bg-vermillion-500/10 transition">
+        Delete
+      </button>
+      {confirming && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-ink-950/50 p-4">
+          <div className="card-shadow w-full max-w-md rounded-3xl bg-white p-6 text-center">
+            <p className="text-lg font-semibold text-vermillion-600">⚠ Delete User?</p>
+            <p className="mt-2 text-sm text-ink-600/70">This is permanent. All data, accounts, transactions, cards, and loans will be erased.</p>
+            <div className="mt-4 flex gap-3">
+              <button type="button" onClick={() => setConfirming(false)} className="btn-secondary flex-1">Cancel</button>
+              <button type="button" onClick={doDelete} disabled={deleting} className="flex-1 rounded-full bg-vermillion-500 text-white font-semibold py-2 px-4 hover:bg-vermillion-600 transition">
+                {deleting ? "Deleting..." : "Delete permanently"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
