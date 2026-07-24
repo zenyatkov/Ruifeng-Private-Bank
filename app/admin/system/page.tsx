@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, CheckCircle, Power, Shield, Zap, CreditCard, ArrowLeftRight, HandCoins, BadgeJapaneseYen, Wallet } from "lucide-react";
 import { Button, PageHeader, Panel, Alert } from "@/components/ui";
+import { t } from "@/lib/i18n";
+import { useUserPrefs } from "@/components/user-context";
+
 
 const SERVICES = [
   { key: "transfers_enabled", label: "Transfer Services", desc: "Internal & external transfers", icon: ArrowLeftRight, color: "jade" },
@@ -15,6 +18,7 @@ const SERVICES = [
 ];
 
 export default function SystemPage() {
+  const { lang } = useUserPrefs();
   const router = useRouter();
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState<string | null>(null);
@@ -35,7 +39,7 @@ export default function SystemPage() {
 
   return (
     <div>
-      <PageHeader title="System Controls" subtitle="Manage platform services and system status." />
+      <PageHeader title={t(lang, "adminSystemControls") || "System Controls"} subtitle={t(lang, "adminSystemSub") || "Manage platform services and system status."} />
 
       {msg && <div className="mb-6"><Alert type="success">{msg}</Alert></div>}
 
