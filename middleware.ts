@@ -2,15 +2,24 @@ import { NextRequest, NextResponse } from "next/server";
 import { logger, generateRequestId } from "@/lib/logger";
 
 export async function middleware(request: NextRequest) {
-  // Generate request ID for tracing
   const requestId = generateRequestId();
 
-  // Log incoming request
+  // Log IP and system info for all requests
+  const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";
+  const userAgent = request.headers.get("user-agent") || "unknown";
+  const country = request.headers.get("x-vercel-ip-country") || "unknown";
+  const city = request.headers.get("x-vercel-ip-city") || "unknown";
+  const region = request.headers.get("x-vercel-ip-country-region") || "unknown";
+
   logger.info("Incoming request", {
     requestId,
     method: request.method,
     path: request.nextUrl.pathname,
-    ip: request.headers.get("x-forwarded-for") || "unknown",
+    ip,
+    userAgent,
+    country,
+    city,
+    region,
   });
 
   // Create response with request ID
@@ -22,13 +31,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|login|register|forgot-password|\\?.*|_next).*)",
   ],
 };
