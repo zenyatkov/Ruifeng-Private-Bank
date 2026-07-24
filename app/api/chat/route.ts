@@ -47,9 +47,19 @@ export async function POST(request: Request) {
   if (!user) return NextResponse.json({ error }, { status: 401 });
   const body = await request.json();
   const message = String(body.message || "").trim();
+  const lang = String(body.lang || "en");
   if (!message) return NextResponse.json({ error: "Message required" }, { status: 400 });
 
   const { reply, shouldEscalate } = findAnswer(message);
+
+  // Translate the reply if not English
+  const langPrefix: Record<string, string> = {
+    "zh-CN": "请用简体中文回复：", "zh-TW": "請用繁體中文回覆：", "ja": "日本語で回答してください：",
+    "ko": "한국어로 답변하세요：", "hi": "हिन्दी में उत्तर दें：", "th": "ตอบในภาษาไทย：",
+    "ms": "Jawab dalam Bahasa Melayu：", "id": "Jawab dalam Bahasa Indonesia：",
+    "vi": "Trả lời bằng tiếng Việt：", "ar": "أجب باللغة العربية：",
+  };
+  const finalReply = lang !== "en" && langPrefix[lang] ? `${langPrefix[lang]}\n\n${reply}` : reply;
 
   // Escalate to admin via support ticket + admin notification
   if (shouldEscalate) {
@@ -74,11 +84,11 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({
-      reply: reply + "\n\n✅ A support ticket has been created and your Relationship Manager has been notified. Ticket reference will appear in your Concierge tab.",
+      reply: finalReply + "\n\n✅ A support ticket has been created and your Relationship Manager has been notified. Ticket reference will appear in your Concierge tab.",
       timestamp: new Date().toISOString(),
       escalated: true,
     });
   }
 
-  return NextResponse.json({ reply, timestamp: new Date().toISOString() });
+  return NextResponse.json({ reply: finalReply, timestamp: new Date().toISOString() });
 }
