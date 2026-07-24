@@ -221,4 +221,13 @@ export const translations: Record<string, string> = {
     todayTransactions: "오늘의 거래",
     pendingApprovals: "승인 대기",
     greeting: "안녕하세요",
+    kycRequiredTitle: "신원 확인 필요",
+    kycRequiredBody: "송금, 카드, 투자 등의 은행 서비스를 이용하려면 먼저 KYC 신원 확인을 완료해야 합니다.",
+    kycRequiredAction: "신원 확인을 완료하여 전체 액세스를 활성화하세요.",
+    kycReviewTitle: "KYC 심사 중",
+    kycReviewBody: "서류를 심사 중입니다. 확인은 보통 24-48시간이 소요됩니다. 승인 후 알림이 발송됩니다.",
+    kycRejectedTitle: "KYC 심사 거절",
+    kycRejectedBody: "신원 확인이 승인되지 않았습니다. 컨시어지 팀에 문의하세요.",
+    kycRejectedAction: "재제출을 위해 고객센터에 문의하세요.",
+    startKyc: "KYC 확인 완료"
 };
