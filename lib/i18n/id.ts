@@ -221,4 +221,13 @@ export const translations: Record<string, string> = {
     todayTransactions: "Transaksi hari ini",
     pendingApprovals: "Menunggu persetujuan",
     greeting: "Selamat datang",
+    kycRequiredTitle: "Verifikasi Identitas Diperlukan",
+    kycRequiredBody: "Untuk mengakses layanan perbankan seperti transfer, kartu, dan investasi, Anda harus menyelesaikan verifikasi KYC.",
+    kycRequiredAction: "Selesaikan verifikasi identitas untuk mengakses semua fitur.",
+    kycReviewTitle: "KYC Sedang Ditinjau",
+    kycReviewBody: "Dokumen Anda sedang ditinjau. Verifikasi biasanya membutuhkan waktu 24-48 jam. Anda akan diberitahu setelah disetujui.",
+    kycRejectedTitle: "KYC Ditolak",
+    kycRejectedBody: "Verifikasi identitas Anda tidak disetujui. Sila hubungi tim concierge kami.",
+    kycRejectedAction: "Hubungi dukungan untuk panduan pengajuan ulang.",
+    startKyc: "Selesaikan KYC"
 };
