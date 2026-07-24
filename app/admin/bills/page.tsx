@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PageHeader, Panel, StatusBadge, Button, EmptyState } from "@/components/ui";
+import { AdminDeleteButton } from "@/components/admin/admin-delete-button";
 
 type Bill = { id: number; billerName: string; billerCategory: string; referenceNumber: string; amount: string; currency: string; status: string; createdAt: string; firstName: string; lastName: string; email: string };
 
@@ -44,6 +45,7 @@ export default function AdminBillsPage() {
                   <div className="mt-3 flex gap-2">
                     <Button className="text-xs py-1 px-3" disabled={busy === b.id} onClick={() => action(b.id, "completed")}>Approve</Button>
                     <Button variant="danger" className="text-xs py-1 px-3" disabled={busy === b.id} onClick={() => action(b.id, "failed")}>Reject</Button>
+                    <AdminDeleteButton type="bill_payment" id={b.id} onSuccess={() => { fetch("/api/admin/bills").then(r => r.json()).then(d => setBills(d.bills || [])); }} />
                   </div>
                 )}
               </div>
