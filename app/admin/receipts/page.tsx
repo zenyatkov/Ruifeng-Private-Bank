@@ -4,6 +4,7 @@ import { receipts, users } from "@/db/schema";
 import { formatDateTime } from "@/lib/utils";
 import { PageHeader, Panel, EmptyState } from "@/components/ui";
 import { AdminReceiptView } from "@/components/admin/receipt-view";
+import { AdminDeleteButtonWrapper } from "@/components/admin/admin-delete-button-wrapper";
 
 export default async function AdminReceiptsPage() {
   const rows = await db.select({
@@ -25,7 +26,10 @@ export default async function AdminReceiptsPage() {
                     <p className="text-xs text-ink-600/60">{r.firstName} {r.lastName} · {r.email}</p>
                     <p className="text-xs text-ink-600/40">{formatDateTime(r.createdAt)}</p>
                   </div>
-                  <AdminReceiptView data={r.data as Record<string, string>} />
+                  <div className="flex items-center gap-2">
+                    <AdminReceiptView data={r.data as Record<string, string>} />
+                    <AdminDeleteButtonWrapper type="receipt" id={r.id} />
+                  </div>
                 </div>
               </div>
             ))}
