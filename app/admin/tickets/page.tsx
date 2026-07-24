@@ -5,8 +5,13 @@ import { formatDateTime } from "@/lib/utils";
 import { PageHeader, Panel, StatusBadge } from "@/components/ui";
 import { TicketAdminControls } from "@/components/admin/ticket-admin-controls";
 import { AdminDeleteButtonWrapper } from "@/components/admin/admin-delete-button-wrapper";
+import { getCurrentUser } from "@/lib/auth";
+import { t } from "@/lib/i18n";
+
 
 export default async function AdminTicketsPage() {
+  const user = await getCurrentUser();
+  const lang = user?.preferredLanguage || "en";
   const rows = await db
     .select({
       id: supportTickets.id,
@@ -27,7 +32,7 @@ export default async function AdminTicketsPage() {
 
   return (
     <div>
-      <PageHeader title="Support desk" subtitle="Resolve concierge and operational tickets for private clients." />
+      <PageHeader title={t(lang, "adminSupportDesk") || "Support desk"} subtitle={t(lang, "adminSupportSub") || "Resolve concierge and operational tickets for private clients."} />
       <div className="grid gap-4">
         {rows.map((ticket) => (
           <Panel key={ticket.id}>
