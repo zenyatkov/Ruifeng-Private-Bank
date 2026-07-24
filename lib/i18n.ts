@@ -1,15 +1,17 @@
 export type SupportedLanguage = "en" | "zh-CN" | "zh-TW" | "ja" | "ko" | "hi" | "th" | "ms" | "id" | "vi" | "ar";
-export type SupportedCurrency = "USD" | "SGD" | "HKD" | "JPY" | "CNY" | "KRW" | "INR" | "THB" | "MYR" | "IDR" | "PHP" | "VND" | "TWD" | "AUD" | "AED" | "EUR" | "GBP";
+export type SupportedCurrency = "USD" | "SGD" | "HKD" | "JPY" | "CNY" | "KRW" | "INR" | "THB" | "MYR" | "IDR" | "PHP" | "VND" | "TWD" | "AUD" | "AED" | "EUR" | "GBP" | "CAD";
 
 export const COUNTRY_CURRENCY: Record<string, SupportedCurrency> = {
   Singapore: "SGD", "Hong Kong": "HKD", Japan: "JPY", "South Korea": "KRW", China: "CNY",
   India: "INR", Thailand: "THB", Malaysia: "MYR", Indonesia: "IDR", Philippines: "PHP",
   Vietnam: "VND", Taiwan: "TWD", Australia: "AUD", "New Zealand": "AUD", "United Arab Emirates": "AED",
+  "United States": "USD", Canada: "CAD", "United Kingdom": "GBP",
 };
 export const COUNTRY_LANGUAGE: Record<string, SupportedLanguage> = {
   Singapore: "en", "Hong Kong": "zh-TW", Japan: "ja", "South Korea": "ko", China: "zh-CN",
   India: "hi", Thailand: "th", Malaysia: "ms", Indonesia: "id", Philippines: "en",
   Vietnam: "vi", Taiwan: "zh-TW", Australia: "en", "New Zealand": "en", "United Arab Emirates": "ar",
+  "United States": "en", Canada: "en", "United Kingdom": "en",
 };
 export const LANGUAGE_LABELS: Record<SupportedLanguage, string> = {
   en: "English", "zh-CN": "简体中文", "zh-TW": "繁體中文", ja: "日本語", ko: "한국어",
@@ -20,6 +22,7 @@ export const CURRENCY_LABELS: Record<SupportedCurrency, string> = {
   CNY: "Chinese Yuan", KRW: "South Korean Won", INR: "Indian Rupee", THB: "Thai Baht",
   MYR: "Malaysian Ringgit", IDR: "Indonesian Rupiah", PHP: "Philippine Peso", VND: "Vietnamese Dong",
   TWD: "Taiwan Dollar", AUD: "Australian Dollar", AED: "UAE Dirham", EUR: "Euro", GBP: "British Pound",
+  CAD: "Canadian Dollar",
 };
 
 // Common core keys shared by all languages
