@@ -221,4 +221,13 @@ export const translations: Record<string, string> = {
     todayTransactions: "Giao dịch hôm nay",
     pendingApprovals: "Chờ phê duyệt",
     greeting: "Xin chào",
+    kycRequiredTitle: "Yêu cầu xác minh danh tính",
+    kycRequiredBody: "Để sử dụng dịch vụ ngân hàng như chuyển tiền, thẻ và đầu tư, bạn phải hoàn thành xác minh KYC.",
+    kycRequiredAction: "Hoàn thành xác minh danh tính để mở khóa tất cả tính năng.",
+    kycReviewTitle: "KYC đang xem xét",
+    kycReviewBody: "Tài liệu của bạn đang được xem xét. Thường mất 24-48 giờ. Bạn sẽ được thông báo khi được phê duyệt.",
+    kycRejectedTitle: "KYC bị từ chối",
+    kycRejectedBody: "Xác minh danh tính của bạn không được phê duyệt. Vui lòng liên hệ đội concierge.",
+    kycRejectedAction: "Liên hệ hỗ trợ để được hướng dẫn gửi lại.",
+    startKyc: "Hoàn thành KYC"
 };
