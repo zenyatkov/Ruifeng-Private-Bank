@@ -6,7 +6,7 @@ import { requireUser } from "@/lib/auth";
 import { generateAccountNumber } from "@/lib/utils";
 import { createAccountSchema } from "@/lib/validation";
 import { createValidatedApiHandler } from "@/lib/api-handler";
-import { successResponse } from "@/lib/api-error";
+import { successResponse, ValidationError } from "@/lib/api-error";
 import { AuthenticationError, AuthorizationError } from "@/lib/api-error";
 import { logger } from "@/lib/logger";
 
@@ -40,6 +40,13 @@ export const POST = createValidatedApiHandler(
 
     const currency = data.currency.toUpperCase();
     const targetUserId = user.role === "admin" && request.nextUrl.searchParams.get("userId") ? Number(request.nextUrl.searchParams.get("userId")) : user.id;
+
+    // Check: user can only have one account of each type
+    const existingAccounts = await db.select().from(accounts).where(eq(accounts.userId, targetUserId));
+    const sameType = existingAccounts.filter(a => a.type === data.type && a.status !== "closed");
+    if (sameType.length > 0) {
+      throw new ValidationError(`You already have an active ${data.type} account. You can only open one account of each type.`);
+    }
 
     const [existingCount] = await db.select({ v: count() }).from(accounts).where(eq(accounts.userId, targetUserId));
     const isFirstAccount = existingCount.v === 0;
