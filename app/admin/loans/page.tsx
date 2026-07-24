@@ -5,8 +5,13 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { PageHeader, Panel, StatusBadge } from "@/components/ui";
 import { LoanActions } from "@/components/admin/loan-actions";
 import { AdminDeleteButtonWrapper } from "@/components/admin/admin-delete-button-wrapper";
+import { getCurrentUser } from "@/lib/auth";
+import { t } from "@/lib/i18n";
+
 
 export default async function AdminLoansPage() {
+  const user = await getCurrentUser();
+  const lang = user?.preferredLanguage || "en";
   const rows = await db
     .select({
       id: loans.id,
@@ -30,7 +35,7 @@ export default async function AdminLoansPage() {
 
   return (
     <div>
-      <PageHeader title="Loan book" subtitle="Credit decisioning and portfolio monitoring for private lending." />
+      <PageHeader title={t(lang, "adminLoanBook") || "Loan book"} subtitle={t(lang, "adminLoanBookSub") || "Credit decisioning and portfolio monitoring for private lending."} />
       <Panel>
         <div className="table-wrap">
           <table className="data-table">
