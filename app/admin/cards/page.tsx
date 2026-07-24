@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { cards, users } from "@/db/schema";
 import { PageHeader, Panel, StatusBadge } from "@/components/ui";
 import { AdminCardActions } from "@/components/admin/card-admin-actions";
+import { AdminDeleteButtonWrapper } from "@/components/admin/admin-delete-button-wrapper";
 
 export default async function AdminCardsPage() {
   const rows = await db
@@ -30,7 +31,12 @@ export default async function AdminCardsPage() {
                   <td><p className="font-mono text-sm">{c.cardNumberMasked}</p><p className="text-xs text-ink-600/60">{c.network}</p></td>
                   <td className="capitalize">{c.type}</td>
                   <td><StatusBadge status={c.status} /></td>
-                  <td><AdminCardActions id={c.id} status={c.status} /></td>
+                  <td>
+                    <div className="flex items-center gap-2">
+                      <AdminCardActions id={c.id} status={c.status} />
+                      <AdminDeleteButtonWrapper type="card" id={c.id} />
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
