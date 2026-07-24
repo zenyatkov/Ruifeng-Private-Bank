@@ -11,8 +11,12 @@ import {
   users,
 } from "@/db/schema";
 import { count, eq, sql } from "drizzle-orm";
+import { getCurrentUser } from "@/lib/auth";
+import { t } from "@/lib/i18n";
 
 export default async function AdminHomePage() {
+  const user = await getCurrentUser();
+  const lang = user?.preferredLanguage || "en";
   const [userCount] = await db.select({ value: count() }).from(users);
   const [clientCount] = await db.select({ value: count() }).from(users).where(eq(users.role, "client"));
   const [accountCount] = await db.select({ value: count() }).from(accounts);
@@ -50,8 +54,8 @@ export default async function AdminHomePage() {
   return (
     <div>
       <PageHeader
-        title="Command Center"
-        subtitle="Enterprise control over clients, balances, credit, compliance, and concierge operations."
+        title={t(lang, "adminCommandCenter") || "Command Center"}
+        subtitle={t(lang, "adminCommandSub") || "Enterprise control over clients, balances, credit, compliance, and concierge operations."}
       />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
